@@ -13,13 +13,15 @@ export default function configureApp(app: Application, db: DataSource) {
     const sessionRepository = db.getRepository(Session)
     //  Rate Limiting
     const limiter = rateLimit({
-        windowMs: 15 * 60 * 1000,
+        windowMs: 15 * 60 * 1000, // 15 minutes
         max: 100,
         message: 'Muitas requisições deste IP, tente novamente mais tarde'
     })
 
-    // Disable 'x-powered-by' for security (not expose what server is running from ext)
+    // Disable 'x-powered-by' for security (not expose what server is running)
     app.disable('x-powered-by')
+    // disable ETAG for 'caching' responses
+    // app.disable('etag')
     app.use(cors())
     // Limits json payloads on max 2MB
     app.use(express.json({ limit: '2mb' }))
