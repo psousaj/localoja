@@ -73,22 +73,22 @@ A seguir, uma sugestão de estrutura de diretórios seguindo a Clean Architectur
 Localoja/
 ├── src/
 │   ├── controllers/
-│   │   └── LojaController.js       // Responsável por receber as requisições e enviar as respostas
+│   │   └── LojaController.ts       // Responsável por receber as requisições e enviar as respostas
 │   ├── models/
-│   │   └── Loja.js                 // Define a estrutura e métodos da entidade Loja
+│   │   └── Loja.ts                 // Define a estrutura e métodos da entidade Loja
 │   ├── routes/
-│   │   └── lojaRoutes.js           // Mapeia os endpoints para os controllers
+│   │   └── lojaRoutes.ts           // Mapeia os endpoints para os controllers
 │   ├── services/
-│   │   ├── LojaService.js          // Contém a lógica de negócio para manipulação das lojas (ex: busca, cadastro)
-│   │   └── ViaCepService.js        // Serviço para integração com a API do ViaCEP
+│   │   ├── LojaService.ts          // Contém a lógica de negócio para manipulação das lojas (ex: busca, cadastro)
+│   │   └── ViaCepService.ts        // Serviço para integração com a API do ViaCEP
 │   ├── middlewares/
-│   │   └── validation.js           // Middlewares para validação de inputs, rate limiting, etc.
+│   │   └── validation.ts           // Middlewares para validação de inputs, rate limiting, etc.
 │   ├── config/
-│   │   ├── express.js              // Configurações do Express (middlewares, rotas, etc.)
-│   │   ├── redis.js                // Configurações e instância do Redis
-│   │   └── db.js                   // Configuração de conexão com o banco de dados
+│   │   ├── express.ts              // Configurações do Express (middlewares, rotas, etc.)
+│   │   ├── redis.ts                // Configurações e instância do Redis
+│   │   └── db.ts                   // Configuração de conexão com o banco de dados
 │   ├── utils/
-│   │   └── logger.js               // Configuração do Winston para logs estruturados
+│   │   └── logger.ts               // Configuração do Winston para logs estruturados
 │   └── app.js                      // Arquivo principal que inicia o servidor e importa as configurações
 ├── tests/                          // Testes unitários e de integração
 ├── .env                          // Variáveis de ambiente

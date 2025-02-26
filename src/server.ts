@@ -1,19 +1,27 @@
-
 import express from 'express'
-import { Router, Request, Response } from 'express';
-import { env } from './utils/env';
+import { env } from './utils/env'
+import { AppDataSource } from './database'
+import { logger } from './utils/logger'
+import configureApp from './middleware'
 
-const app = express();
+const app = express()
 
-const route = Router()
+async function startServer() {
+    try {
+        const db = await AppDataSource.initialize()
+        logger.info("📦 Banco de dados conectado!")
 
-app.use(express.json())
+        // Chama a função para configurar o app
+        configureApp(app, db)
 
-route.get('/', (req: Request, res: Response) => {
-    res.json({ message: 'hello world with Typescript' })
-})
+        app.listen(env.PORT, env.HOST, () => {
+            logger.info(`🚀 Servidor rodando em http://${env.HOST}:${env.PORT}`)
+        })
 
-app.use(route)
+    } catch (error) {
+        logger.error("❌ Erro ao conectar no banco de dados:", error)
+        process.exit(1)
+    }
+}
 
-
-app.listen(env.PORT, env.HOST, () => { console.log('server running on port 3333 🚀') })
+startServer()
