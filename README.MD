@@ -69,6 +69,7 @@ A aplicação segue os princípios da Clean Architecture, separando as responsab
 
 A seguir, uma sugestão de estrutura de diretórios seguindo a Clean Architecture:
 
+```json
 Localoja/
 ├── src/
 │ ├── domain/
@@ -103,7 +104,7 @@ Localoja/
 ├── package.json
 ├── tsconfig.json (se usar TypeScript)
 └── README.md
-
+```
 
 ## Instalação e Configuração
 
