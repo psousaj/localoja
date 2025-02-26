@@ -69,40 +69,30 @@ A aplicação segue os princípios da Clean Architecture, separando as responsab
 
 A seguir, uma sugestão de estrutura de diretórios seguindo a Clean Architecture:
 
-```json
+```arduino
 Localoja/
 ├── src/
-│ ├── domain/
-│ │ ├── entities/
-│ │ │ └── Loja.ts
-│ │ ├── usecases/
-│ │ │ ├── BuscarLojasPorCep.ts
-│ │ │ └── CadastrarLoja.ts
-│ │ └── interfaces/
-│ │ ├── ILojaRepository.ts
-│ │ └── IEnderecoService.ts
-│ ├── infrastructure/
-│ │ ├── database/
-│ │ │ └── LojaRepository.ts
-│ │ ├── services/
-│ │ │ └── ViaCepService.ts
-│ │ └── redis/
-│ │ └── RedisCache.ts
-│ ├── presentation/
-│ │ ├── controllers/
-│ │ │ └── LojaController.ts
-│ │ └── routes/
-│ │ └── lojaRoutes.ts
-│ ├── config/
-│ │ ├── express.ts
-│ │ ├── winston.ts
-│ │ └── env.ts
-│ └── app.ts
-├── tests/
-│ └── (arquivos de teste)
-├── .env
+│   ├── controllers/
+│   │   └── LojaController.js       // Responsável por receber as requisições e enviar as respostas
+│   ├── models/
+│   │   └── Loja.js                 // Define a estrutura e métodos da entidade Loja
+│   ├── routes/
+│   │   └── lojaRoutes.js           // Mapeia os endpoints para os controllers
+│   ├── services/
+│   │   ├── LojaService.js          // Contém a lógica de negócio para manipulação das lojas (ex: busca, cadastro)
+│   │   └── ViaCepService.js        // Serviço para integração com a API do ViaCEP
+│   ├── middlewares/
+│   │   └── validation.js           // Middlewares para validação de inputs, rate limiting, etc.
+│   ├── config/
+│   │   ├── express.js              // Configurações do Express (middlewares, rotas, etc.)
+│   │   ├── redis.js                // Configurações e instância do Redis
+│   │   └── db.js                   // Configuração de conexão com o banco de dados
+│   ├── utils/
+│   │   └── logger.js               // Configuração do Winston para logs estruturados
+│   └── app.js                      // Arquivo principal que inicia o servidor e importa as configurações
+├── tests/                          // Testes unitários e de integração
+├── .env                          // Variáveis de ambiente
 ├── package.json
-├── tsconfig.json (se usar TypeScript)
 └── README.md
 ```
 
