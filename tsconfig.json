@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "CommonJS",                                /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    // "paths": {},                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
+    "outDir": "./dist",                                   /* Specify an output folder for all emitted files. */
+    "rootDir": "./src",
+    "strict": true,                                      /* Enable all strict type-checking options. */
+  },
+  "exclude": ["node_modules"]
+}
