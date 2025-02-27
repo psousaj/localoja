@@ -12,9 +12,9 @@ const AppDataSource = new DataSource({
     password: env.PGPASSWORD,
     database: env.PGDATABASE,
     synchronize: true, //disable on production
-    logging: true,
-    logger: typeormLogger,
-    logNotifications: true,
+    // logging: true,
+    // logger: typeormLogger,
+    // logNotifications: true,
     ssl: true,
     entities: [path.join(__dirname, '../models/*.entity{.ts,.js}')],
     subscribers: [],

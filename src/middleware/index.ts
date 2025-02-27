@@ -22,7 +22,9 @@ export default function configureApp(app: Application, db: DataSource) {
     app.disable('x-powered-by')
     // disable ETAG for 'caching' responses
     // app.disable('etag')
-    app.use(cors())
+    app.use(cors({
+        allowedHeaders: '*'
+    }))
     // Limits json payloads on max 2MB
     app.use(express.json({ limit: '2mb' }))
     app.use(cookieParser())
@@ -32,7 +34,7 @@ export default function configureApp(app: Application, db: DataSource) {
             secret: env.SESSION_SECRET,
             resave: false,
             saveUninitialized: false,
-            cookie: { maxAge: 1000 * 60 * 60 * 24 },
+            cookie: { maxAge: 1000 * 60 * 60 * 24 }, // 24 hours
             store: new TypeormStore({ repository: sessionRepository })
         })
     )
