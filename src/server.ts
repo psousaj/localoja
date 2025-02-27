@@ -23,7 +23,6 @@ async function startServer() {
         const db = await AppDataSource.initialize()
         logger.info("📦 Banco de dados conectado! 📦")
 
-        // Set middleware config
         configureApp(app, db)
 
         app.listen(env.PORT, env.HOST, () => {
