@@ -67,7 +67,7 @@ A aplicação segue os princípios da Clean Architecture, separando as responsab
 
 ## Estrutura de Arquivos
 
-A seguir, uma sugestão de estrutura de diretórios seguindo a Clean Architecture:
+A seguir, ideia inicial da estrutura de diretórios:
 
 ```arduino
 Localoja/
@@ -101,20 +101,22 @@ Localoja/
 1. **Clone o repositório:**
    ```bash
    git clone https://github.com/seu-usuario/localoja.git
-Instale as dependências:
-bash
-Copy
-1
-2
+
+2. **Instale as dependências:**
+```bash
 cd localoja
 npm install
-Configure as variáveis de ambiente:
-Crie um arquivo .env com as configurações necessárias (porta, dados do banco, credenciais do Redis, etc.).
-Inicie a aplicação:
-bash
-Copy
-1
+```
+
+3. **Configure as variáveis de ambiente:**
+Crie um arquivo .env com as configurações necessárias (porta, dados do banco, credenciais do Redis, etc.)
+
+4. **Inicie a aplicação:**
+
+```bash
 npm start
+```
+
 Uso da API
 Endpoint de Busca de Lojas
 Método: GET
@@ -124,23 +126,25 @@ cep - CEP a ser pesquisado
 page - Número da página (opcional, padrão: 1)
 itens - Itens por página (opcional, padrão: 20)
 Exemplo de Requisição:
-bash
-Copy
-1
+
+```bash
 GET /lojas?cep=01001000&page=2&itens=20
-Boas Práticas
+```
+
 Validação e Sanitização:
-Utilize bibliotecas como Joi para validar os dados de entrada e evitar injeções.
+Utiliza zod para validar os dados de entrada e evitar injeções.
+
 Rate Limiting:
-Implemente limites de requisições por IP para prevenir abusos.
+Implementa limites de requisições por IP para prevenir abusos.
+
 Cache com Redis:
-Armazene os dados da API do ViaCEP e os resultados das buscas para melhorar a performance, utilizando TTL adequado.
+Armazena os dados da API do ViaCEP e os resultados das buscas para melhorar a performance, utilizando TTL adequado.
+
 Logging Estruturado:
-Utilize Winston para registrar todas as requisições, respostas e erros, facilitando o monitoramento e a depuração.
-Arquitetura Modular:
-Separe o código em camadas (Domain, Infrastructure, Presentation e Config) para facilitar testes e manutenções futuras.
+Utiliza Winston para registrar todas as requisições, respostas e erros, facilitando o monitoramento e a depuração.
+
 Paginação Amigável:
-Utilize parâmetros como page e itens, convertendo-os internamente para offset e limit.
+Utiliza parâmetros como page e itens, convertendo-os internamente para offset e limit.
 
 
 Licença
