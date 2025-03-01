@@ -12,16 +12,12 @@
     "typeorm": "typeorm-ts-node-commonjs"
   },
   "dependencies": {
-    "connect-typeorm": "^2.0.0",
-    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "express-rate-limit": "^7.5.0",
-    "express-session": "^1.18.1",
     "pg": "^8.13.3",
     "reflect-metadata": "^0.2.2",
     "typeorm": "^0.3.20",
-    "typeorm-store": "^2.0.1",
     "winston": "^3.17.0",
     "zod": "^3.24.2"
   },

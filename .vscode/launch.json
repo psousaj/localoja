@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Executar TS",
+            "runtimeArgs": [
+                "-r",
+                "ts-node/register"
+            ],
+            "program": "${workspaceFolder}/src/cache/index.ts",
+            "outFiles": [
+                "${workspaceFolder}/src/**/*.ts"
+            ],
+            "sourceMaps": true
+        }
+    ]
+}
