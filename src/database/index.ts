@@ -21,4 +21,8 @@ const AppDataSource = new DataSource({
     migrations: [],
 })
 
-export { AppDataSource }
+const repositoryProviders = {
+    place: AppDataSource.getRepository('place')
+}
+
+export { AppDataSource, repositoryProviders }

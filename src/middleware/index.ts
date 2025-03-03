@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import { Session } from '../database/entities/session.entity'
+>>>>>>> 2b1b3ca (feat: adiciona entidades e repositórios para gerenciamento de locais e sessões)
 import express, { Application } from 'express'
 import rateLimit from 'express-rate-limit'
 import { DataSource } from 'typeorm'
