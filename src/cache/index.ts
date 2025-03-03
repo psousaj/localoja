@@ -2,7 +2,7 @@ import { ICache, ICacheProps, ICacheValue } from "../types";
 
 class AppCache implements ICache {
     private cache: Map<string, ICacheValue>
-    private keyExpiration: Map<string, number> = new Map();
+    private keyExpiration: Map<string, number>
     private limit: number
     private stdTTL: number
     protected checkPeriod: number
@@ -12,6 +12,7 @@ class AppCache implements ICache {
         this.stdTTL = stdTTL ?? 0
         this.checkPeriod = checkPeriod ?? 600
         this.cache = new Map()
+        this.keyExpiration = new Map()
     }
 
     private isExpired(key: string): boolean {
@@ -46,6 +47,18 @@ class AppCache implements ICache {
         this.keyExpiration.delete(key)
     }
 
+    private retrieve(key: string): ICacheValue | null {
+        if (this.isExpired(key)) {
+            this.delete(key)
+            return null
+        }
+
+        const entry = this.cache.get(key)
+        if (!entry) return null
+
+        return entry
+    }
+
     listKeys(): string[] {
         this.cleanup()
         return Array.from(this.cache.keys()) as string[]
@@ -61,16 +74,22 @@ class AppCache implements ICache {
         this.keyExpiration.clear()
     }
 
-    get(key: string): ICacheValue {
-        if (this.isExpired(key)) {
-            this.delete(key)
-            return null
+    get(key: string): ICacheValue | null {
+        return this.retrieve(key)
+    }
+
+    take(key: string): ICacheValue | null {
+        const entry = this.get(key)
+        if (entry) {
+            this.del(key)
+            return entry
         }
 
-        const entry = this.cache.get(key)
-        if (!entry) return null
+        return null
+    }
 
-        return entry
+    del(key: string): void {
+        this.delete(key)
     }
 
     set(key: string, value: any, ttl?: number): void {
@@ -88,17 +107,6 @@ class AppCache implements ICache {
         }
 
         this.add(key, entryValue)
-    }
-
-    take(key: string): ICacheValue {
-        const entry = this.get(key)
-        this.del(key)
-
-        return entry
-    }
-
-    del(key: string): void {
-        this.delete(key)
     }
 
     ttl(key: string, ttl: number): boolean {
