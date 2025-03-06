@@ -1,14 +1,13 @@
-import { repositoryProviders } from '../database'
+import { NextFunction, Request, Response } from 'express';
+import { LocationService } from '../services/place.service';
 
-import { Repository } from 'typeorm';
-import { Place } from '../database/entities/place.entity';
+const locationService: LocationService = new LocationService();
 
-export class PlaceController {
-    private placeRepository: Repository<Place>;
-
-    constructor(placeRepository: Repository<Place>) {
-        this.placeRepository = placeRepository;
+const placeController = {
+    createLocation: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        const newPlace = await locationService.createLocation(req.body)
+        res.status(201).json(newPlace)
     }
-
-    // Add your methods here
 }
+
+export default placeController

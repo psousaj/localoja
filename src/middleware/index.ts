@@ -2,8 +2,9 @@ import express, { Application } from 'express'
 import rateLimit from 'express-rate-limit'
 import { DataSource } from 'typeorm'
 import cors from 'cors'
-import { AppCache } from 'src/cache'
+import { AppCache } from '../cache'
 import errorHandler from './errorHandler'
+import apiRouter from '../routes'
 
 export default function configureApp(app: Application, db: DataSource) {
     //  Rate Limiting
@@ -26,6 +27,7 @@ export default function configureApp(app: Application, db: DataSource) {
     app.get('/health', (req, res) => {
         res.status(200).json({ status: 'ok', uptime: process.uptime() });
     })
+    app.use('/api', apiRouter)
 
     app.use(errorHandler)
 }

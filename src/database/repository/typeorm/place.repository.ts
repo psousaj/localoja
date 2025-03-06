@@ -1,6 +1,6 @@
-import { AppDataSource } from '@src/database';
-import { Place } from '@src/database/entities/place.entity';
-import IPlaceRepo from '@src/database/repository/placeRepo';
+import { AppDataSource } from '../database';
+import { Place } from '../database/entities/place.entity';
+import IPlaceRepo from '../database/repository/placeRepo';
 import { Repository } from 'typeorm';
 
 export default class PlacesRepository implements IPlaceRepo {

@@ -1,3 +1,4 @@
+import { GeoLocationResponse, GeolocationResponseResult } from "../types";
 import { env } from "../config/env";
 
 export class GeolocationAPI {
@@ -8,9 +9,9 @@ export class GeolocationAPI {
      **/
 
 
-    static async getGeoLocationByAddress(address: string) {
-        const place = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${env.GMAPS_GEOCODING_APIKEY}`).then((res) => res.json());
-        return place;
+    static async getGeoLocationByAddress(address: string): Promise<GeolocationResponseResult[] | null> {
+        const places: GeoLocationResponse = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${env.GMAPS_GEOCODING_APIKEY}`).then((res) => res.json());
+        return places.error_message ? null : places.results
     }
 
     static async getPlaceByCep(cep: string) {
