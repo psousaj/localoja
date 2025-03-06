@@ -1,9 +1,9 @@
 import express from 'express'
-import { env } from './utils/env'
 import { AppDataSource } from './database'
-import { logger } from './utils/logger'
 import configureApp from './middleware'
 import pkg from '../package.json'
+import { logger } from './config/logger'
+import { env } from './config/env'
 
 const app = express()
 
@@ -16,7 +16,7 @@ async function startServer() {
     logger.info('Y88888P  \`Y88P\'   \`Y88P\' YP   YP Y88888P  \`Y88P\'  Y8888P  YP   YP ')
     logger.info('')
     logger.info(pkg.name + ' v' + pkg.version + ' Copyright (C) 2025 Psousaj')
-    logger.info('Running in: ' + process.platform)
+    logger.info('Running in: ' + env.NODE_ENV + ' mode on ' + process.platform)
     logger.info('Server Time: ' + new Date())
 
     try {

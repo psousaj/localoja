@@ -6,8 +6,8 @@ import cors from 'cors'
 export default function configureApp(app: Application, db: DataSource) {
     //  Rate Limiting
     const limiter = rateLimit({
-        windowMs: 15 * 60 * 1000, // 15 minutes
-        max: 100,
+        windowMs: 5 * 60 * 1000, // 5 minutes
+        max: 25,
         message: 'Muitas requisições deste IP, tente novamente mais tarde'
     })
 
