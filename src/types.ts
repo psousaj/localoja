@@ -20,4 +20,59 @@ interface ICache<K = string, V = ICacheValue> {
     flushAll(): void
 }
 
-export { ICache, ICacheValue, ICacheProps }
+type GeolocationResponseResult = {
+    address_components: Array<{
+        long_name: string
+        short_name: string
+        types: Array<string>
+    }>
+    formatted_address: string
+    geometry: {
+        bounds: {
+            northeast: {
+                lat: number
+                lng: number
+            }
+            southwest: {
+                lat: number
+                lng: number
+            }
+        },
+        location_type: string,
+        location: {
+            lat: number
+            lng: number
+        }
+        viewport: {
+            northeast: {
+                lat: number
+                lng: number
+            }
+            southwest: {
+                lat: number
+                lng: number
+            }
+        }
+    },
+    place_id: string,
+    types: Array<string>
+}
+
+type GeoLocationResponse = {
+    error_message?: string
+    results: Array<GeolocationResponseResult>
+    status: string
+}
+
+enum HttpStatus {
+    OK = 200,
+    CREATED = 201,
+    BAD_REQUEST = 400,
+    UNAUTHORIZED = 401,
+    FORBIDDEN = 403,
+    NOT_FOUND = 404,
+    INTERNAL_SERVER_ERROR = 500
+}
+
+
+export { ICache, ICacheValue, ICacheProps, GeoLocationResponse, GeolocationResponseResult, HttpStatus }

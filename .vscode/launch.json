@@ -4,12 +4,11 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Executar TS",
+            "name": "Executar Yarn Dev",
+            "runtimeExecutable": "yarn", // Especifica o Yarn como o executável
             "runtimeArgs": [
-                "-r",
-                "ts-node/register"
+                "dev" // Passa o script 'dev' para o Yarn
             ],
-            "program": "${workspaceFolder}/src/cache/index.ts",
             "outFiles": [
                 "${workspaceFolder}/src/**/*.ts"
             ],
