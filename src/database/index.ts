@@ -1,8 +1,7 @@
 import "reflect-metadata"
 import { DataSource } from "typeorm";
 import path from "node:path";
-import { env } from "../utils/env";
-import { typeormLogger } from "../utils/typeormLogger";
+import { env } from "node:process";
 
 const AppDataSource = new DataSource({
     type: "postgres",
