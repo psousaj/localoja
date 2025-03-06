@@ -7,7 +7,7 @@ type ICacheProps = {
 
 type ICacheValue = {
     value: string | object
-    ttl?: number | null
+    ttl?: number
 }
 
 interface ICache<K = string, V = ICacheValue> {

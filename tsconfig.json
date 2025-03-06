@@ -8,11 +8,11 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "baseUrl": "./",
-    "paths": {
-      "@src/*": [
-        "src/*"
-      ]
-    },
+    // "paths": {
+    //   "@src/*": [
+    //     "src/*"
+    //   ]
+    // },
     "outDir": "./dist",
     "rootDir": "./src",
     "esModuleInterop": true,
