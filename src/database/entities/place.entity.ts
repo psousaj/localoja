@@ -1,17 +1,21 @@
-import { randomUUID } from "node:crypto";
-import { BeforeInsert, Column, Entity, PrimaryColumn } from "typeorm";
+import { Column, Entity, Index, Point, PrimaryColumn } from "typeorm";
 
 @Entity('place')
 export class Place {
 
     @PrimaryColumn("uuid")
-    id: string;
+    id: string
 
     @Column({ unique: false })
-    cep: string;
+    cep: string
 
-    @BeforeInsert()
-    generateId() {
-        this.id = randomUUID()
-    }
+    @Index({ spatial: true })
+    @Column({
+        unique: true,
+        type: 'geometry',
+        spatialFeatureType: 'Point',
+        srid: 4326,
+        nullable: true
+    })
+    location: Point
 }
