@@ -1,5 +1,6 @@
 import { ErrorCodes, HttpStatus } from "../types"
 import { logger } from "../config/logger"
+import { SafeParseReturnType } from "zod"
 
 class BaseError extends Error {
     /**
@@ -8,33 +9,51 @@ class BaseError extends Error {
 
     public statusCode: number
     public errorCode: string
+    public zodErrors?: any
 
-    constructor(statusCode: number, errorCode: string, message: string) {
+    constructor(statusCode: number, errorCode: string, message: string, zodErrors?: string | SafeParseReturnType<any, any>) {
         super(message)
 
         this.statusCode = statusCode
         this.errorCode = errorCode
+        this.zodErrors = zodErrors
+            ? typeof zodErrors === "string"
+                ? zodErrors
+                : JSON.stringify(zodErrors.error?.format?.() ?? zodErrors)
+            : undefined;
+
 
         logger.error(`${errorCode} - ${message}`)
     }
 
+
     getBody() {
-        return {
+        const body = {
             errorCode: this.errorCode,
-            message: this.message
+            message: this.message,
         }
+
+        // If there are Zod errors, include them in the response body.
+        if (this.zodErrors) {
+            return {
+                ...body,
+                invalidFields: this.zodErrors,
+            }
+        }
+
+        return body
     }
 }
 
 class NotFoundError extends BaseError {
-    constructor(errorCode: string = ErrorCodes.NOT_FOUND, message: string) {
-        super(HttpStatus.NOT_FOUND, errorCode, message)
+    constructor(errorCode: string = ErrorCodes.NOT_FOUND, message: string, zodErrors?: string | SafeParseReturnType<any, any>) {
+        super(HttpStatus.NOT_FOUND, errorCode, message, zodErrors)
     }
 }
 
 class BadRequestError extends BaseError {
-    constructor(errorCode: string = ErrorCodes.BAD_REQUEST, message: string) {
-        super(HttpStatus.BAD_REQUEST, errorCode, message)
+    constructor(errorCode: string = ErrorCodes.BAD_REQUEST, message: string, zodErrors?: string | SafeParseReturnType<any, any>) {
+        super(HttpStatus.BAD_REQUEST, errorCode, message, zodErrors)
     }
 }
 
@@ -45,8 +64,8 @@ class InternalServerError extends BaseError {
 }
 
 class UnauthorizedError extends BaseError {
-    constructor(errorCode: string = ErrorCodes.UNAUTHORIZED, message: string) {
-        super(HttpStatus.UNAUTHORIZED, errorCode, message)
+    constructor(errorCode: string = ErrorCodes.UNAUTHORIZED, message: string, zodErrors?: string | SafeParseReturnType<any, any>) {
+        super(HttpStatus.UNAUTHORIZED, errorCode, message, zodErrors)
     }
 }
 
