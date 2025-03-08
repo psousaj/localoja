@@ -2,30 +2,36 @@ import { ErrorCodes, HttpStatus } from "../types"
 import { logger } from "../config/logger"
 import { SafeParseReturnType } from "zod"
 
-class BaseError extends Error {
-    /**
-     * Reference: https://medium.com/stonetech/minha-experiência-com-error-handling-no-express-188534ae6ff2
-     */
+type BaseErrorConstructor = {
+    new(...args: any[]): BaseError
+    statusCode: number
+}
 
+class BaseError extends Error {
     public statusCode: number
     public errorCode: string
     public zodErrors?: any
 
-    constructor(statusCode: number, errorCode: string, message: string, zodErrors?: string | SafeParseReturnType<any, any>) {
+    constructor(
+        errorCode: string,
+        message: string,
+        zodErrors?: string | SafeParseReturnType<any, any>,
+        { remoteIp }: { remoteIp?: string } = {}
+    ) {
         super(message)
 
-        this.statusCode = statusCode
+        // Acesso ao statusCode estático da subclasse com type assertion
+        this.statusCode = (this.constructor as BaseErrorConstructor).statusCode
         this.errorCode = errorCode
         this.zodErrors = zodErrors
             ? typeof zodErrors === "string"
                 ? zodErrors
-                : JSON.stringify(zodErrors.error?.format?.() ?? zodErrors)
-            : undefined;
+                : zodErrors.error.format()
+            : undefined
 
-
-        logger.error(`${errorCode} - ${message}`)
+        const ipInfo = remoteIp ? ` - IP: ${remoteIp}` : ""
+        logger.error(`${errorCode} - ${message}${ipInfo}`)
     }
-
 
     getBody() {
         const body = {
@@ -33,7 +39,6 @@ class BaseError extends Error {
             message: this.message,
         }
 
-        // If there are Zod errors, include them in the response body.
         if (this.zodErrors) {
             return {
                 ...body,
@@ -45,33 +50,39 @@ class BaseError extends Error {
     }
 }
 
+// Subclasses definem seu próprio statusCode estático
 class NotFoundError extends BaseError {
+    static statusCode = HttpStatus.NOT_FOUND
     constructor(errorCode: string = ErrorCodes.NOT_FOUND, message: string, zodErrors?: string | SafeParseReturnType<any, any>) {
-        super(HttpStatus.NOT_FOUND, errorCode, message, zodErrors)
+        super(errorCode, message, zodErrors)
     }
 }
 
 class BadRequestError extends BaseError {
+    static statusCode = HttpStatus.BAD_REQUEST
     constructor(errorCode: string = ErrorCodes.BAD_REQUEST, message: string, zodErrors?: string | SafeParseReturnType<any, any>) {
-        super(HttpStatus.BAD_REQUEST, errorCode, message, zodErrors)
+        super(errorCode, message, zodErrors)
     }
 }
 
 class InternalServerError extends BaseError {
+    static statusCode = HttpStatus.INTERNAL_SERVER_ERROR
     constructor(errorCode: string = ErrorCodes.INTERNAL_SERVER_ERROR, message: string) {
-        super(HttpStatus.INTERNAL_SERVER_ERROR, errorCode, message)
+        super(errorCode, message)
     }
 }
 
 class UnauthorizedError extends BaseError {
+    static statusCode = HttpStatus.UNAUTHORIZED
     constructor(errorCode: string = ErrorCodes.UNAUTHORIZED, message: string, zodErrors?: string | SafeParseReturnType<any, any>) {
-        super(HttpStatus.UNAUTHORIZED, errorCode, message, zodErrors)
+        super(errorCode, message, zodErrors)
     }
 }
 
 class ForbiddenError extends BaseError {
+    static statusCode = HttpStatus.FORBIDDEN
     constructor(errorCode: string = ErrorCodes.FORBIDDEN, message: string) {
-        super(HttpStatus.FORBIDDEN, errorCode, message)
+        super(errorCode, message)
     }
 }
 
@@ -89,5 +100,5 @@ export {
     InternalServerError,
     NotFoundError,
     UnauthorizedError,
-    normalizeError
+    normalizeError,
 }

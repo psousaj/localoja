@@ -28,5 +28,6 @@ const validateSchema = (schema: ZodSchema) => (req: Request, res: Response, next
 
 
 export {
-    wrapAction
+    wrapAction,
+    validateSchema
 }
