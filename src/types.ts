@@ -74,5 +74,15 @@ enum HttpStatus {
     INTERNAL_SERVER_ERROR = 500
 }
 
+enum ErrorCodes {
+    BAD_REQUEST = 'BAD_REQUEST',
+    UNAUTHORIZED = 'UNAUTHORIZED',
+    FORBIDDEN = 'FORBIDDEN',
+    NOT_FOUND = 'NOT_FOUND',
+    INTERNAL_SERVER_ERROR = 'INTERNAL_SERVER_ERROR',
+    PLACE_NOT_FOUND = 'PLACE_NOT_FOUND',
+    INVALID_ADDRESS = 'INVALID_ADDRESS',
+    INVALID_PLACE_ID = 'INVALID_PLACE_ID',
+}
 
-export { ICache, ICacheValue, ICacheProps, GeoLocationResponse, GeolocationResponseResult, HttpStatus }
+export { ICache, ICacheValue, ICacheProps, GeoLocationResponse, GeolocationResponseResult, HttpStatus, ErrorCodes }

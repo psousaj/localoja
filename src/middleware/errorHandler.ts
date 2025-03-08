@@ -1,16 +1,17 @@
-import { NextFunction, Request, Response } from "express";
-import { logger } from "../config/logger";
+import { NextFunction, Request, Response } from "express"
+import { normalizeError } from "../utils/errors"
 
 function errorHandler(err: any, req: Request, res: Response, next: NextFunction) {
-    logger.error(err)
+    // https://expressjs.com/en/guide/error-handling.html#the-default-error-handler
+    if (res.headersSent) {
+        return next(err)
+    }
 
-    const status = err.status ?? 500
+    const error = normalizeError(err)
+    const statusCode = error.statusCode
+    const body = error.getBody()
 
-    res.status(status).json({
-        error: err, // This is a string representation of the error type
-        message: err.message,
-    })
-
+    res.status(statusCode).json(body)
 }
 
 export default errorHandler

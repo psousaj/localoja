@@ -3,6 +3,8 @@ import { Place } from "../database/entities/place.entity"
 import { Repository } from "typeorm"
 import { GeolocationAPI } from "./geolocation.service"
 import { CreateLocationDto } from "../database/dto/create-location.dto"
+import { BadRequestError } from "../utils/errors"
+import { ErrorCodes } from "../types"
 
 export class LocationService {
     constructor(
@@ -32,7 +34,7 @@ export class LocationService {
                 coordinates: [geoLocations[0].geometry.location.lat, geoLocations[0].geometry.location.lng]
             }
         } else {
-            throw new Error('Invalid location! Please provide a valid CEP or latitude and longitude')
+            throw new BadRequestError(ErrorCodes.INVALID_ADDRESS, 'Invalid location! Please provide a valid CEP or latitude and longitude')
         }
 
 
