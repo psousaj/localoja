@@ -1,12 +1,15 @@
 import { NextFunction, Request, Response } from 'express';
-import { LocationService } from '../services/place.service';
+import { PlaceService } from '../services/place.service';
+import { logger } from '../config/logger';
 
-const locationService: LocationService = new LocationService();
+const locationService: PlaceService = new PlaceService();
 
 const placeController = {
-    createLocation: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        const newPlace = await locationService.createLocation(req.body)
-        res.status(201).json(newPlace)
+    createLocation: async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+        logger.debug(`createLocation called ${JSON.stringify(req.body)}`)
+        const newPlace = await locationService.createPlace(req.body)
+        logger.debug(`Location created: ${JSON.stringify(newPlace)}`)
+        return res.status(201).json(newPlace)
     }
 }
 

@@ -1,9 +1,8 @@
-export class CreateLocationDto {
-    address: string
-    lat?: number
-    lng?: number
-    cep?: string
-    city: string
-    state: string
-    country: string
+import { z } from "zod"
+import { createPlaceSchema } from "../../schemas/zodSchemas"
+
+type CreatePlaceDto = z.infer<typeof createPlaceSchema>
+
+export {
+    CreatePlaceDto
 }

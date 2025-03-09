@@ -64,6 +64,19 @@ type GeoLocationResponse = {
     status: string
 }
 
+enum PlaceType {
+    STORE = 'store',
+    RESTAURANT = 'restaurant',
+    SQUARE = 'square',
+    PHARMACY = 'pharmacy',
+    HOSPITAL = 'hospital',
+    SCHOOL = 'scholl',
+    GROCERY = 'grocery',
+    SUPERMARKET = 'supermarket',
+    PUBLIC_PLACE = 'public_place',
+    NOT_INFORMED = 'not_informed'
+}
+
 enum HttpStatus {
     OK = 200,
     CREATED = 201,
@@ -86,4 +99,13 @@ enum ErrorCodes {
     INVALID_PLACE_ID = 'INVALID_PLACE_ID',
 }
 
-export { ICache, ICacheValue, ICacheProps, GeoLocationResponse, GeolocationResponseResult, HttpStatus, ErrorCodes }
+export {
+    ICache,
+    ICacheValue,
+    ICacheProps,
+    GeoLocationResponse,
+    GeolocationResponseResult,
+    HttpStatus,
+    ErrorCodes,
+    PlaceType
+}

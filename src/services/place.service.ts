@@ -2,13 +2,13 @@ import { AppDataSource } from "../database"
 import { Place } from "../database/entities/place.entity"
 import { Repository } from "typeorm"
 import { GeolocationAPI } from "./geolocation.service"
-import { CreateLocationDto } from "../database/dto/create-location.dto"
 import { BadRequestError } from "../utils/errors"
 import { ErrorCodes } from "../types"
+import { logger } from "../config/logger"
 
-export class LocationService {
+export class PlaceService {
     constructor(
-        private locationRepository: Repository<Place> = AppDataSource.getRepository(Place),
+        private placeRepository: Repository<Place> = AppDataSource.getRepository(Place),
         private geoLocationService = GeolocationAPI
     ) { }
 
@@ -19,9 +19,8 @@ export class LocationService {
         return locations
     }
 
-    async createLocation(place: CreateLocationDto): Promise<Place> {
+    async createPlace(place: Place): Promise<Place> {
         let pointObject
-
         if (place.lat && place.lng) {
             pointObject = {
                 type: 'Point',
@@ -37,23 +36,39 @@ export class LocationService {
             throw new BadRequestError(ErrorCodes.INVALID_ADDRESS, 'Invalid location! Please provide a valid CEP or latitude and longitude')
         }
 
+        place.location = pointObject
 
-        return this.locationRepository.create(place)
+        const newPlace = this.placeRepository.create({
+            address: place.address,
+            cep: place.cep,
+            location: pointObject,
+            city: place.city,
+            state: place.state,
+            country: place.country
+        })
+
+        logger.debug(`Created location: ${JSON.stringify(newPlace)}`)
+        logger.debug(`${newPlace.location}, ${pointObject}`)
+
+        return newPlace
     }
 
     async getLocationById(id: string): Promise<Place> {
-        return this.locationRepository.findOneBy({ id })
+        return this.placeRepository.findOneBy({ id })
+    }
+    async getLocationByCep(cep: string): Promise<Place> {
+        return this.placeRepository.findOneBy({ cep })
     }
 
     async getLocations(): Promise<Place[]> {
-        return this.locationRepository.find()
+        return this.placeRepository.find()
     }
 
     async updateLocation(id: string, location: Place): Promise<Place> {
-        return this.locationRepository.update(id, location).then(() => location)
+        return this.placeRepository.update(id, location).then(() => location)
     }
 
     async deleteLocation(id: string): Promise<void> {
-        this.locationRepository.delete(id)
+        this.placeRepository.delete(id)
     }
 }
