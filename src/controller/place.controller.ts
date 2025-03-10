@@ -2,7 +2,13 @@ import { NextFunction, Request, Response } from 'express';
 import { PlaceService } from '../services/place.service';
 
 export class PlaceController {
-    private static locationService = new PlaceService()
+    private static _locationService: PlaceService;
+    private static get locationService(): PlaceService {
+        if (!this._locationService) {
+            this._locationService = new PlaceService();
+        }
+        return this._locationService;
+    }
 
     static async create(req: Request, res: Response, next: NextFunction) {
         const newPlace = await this.locationService.createPlace(req.body)
