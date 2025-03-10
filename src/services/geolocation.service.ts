@@ -1,8 +1,16 @@
-import { ErrorCodes, GeoLocationResponse, GeolocationResponseResult, PlaceLocation, RouteDistance, RoutesResponse, ViaCepResponse } from "../types";
-import { env } from "../config/env";
-import axios from "axios";
-import { BadRequestError, InternalServerError } from "../utils/errors";
-import { logger } from "../config/logger";
+import {
+    ErrorCodes,
+    GeoLocationResponse,
+    GeolocationResponseResult,
+    PlaceLocation,
+    RouteDistance,
+    RoutesResponse,
+    ViaCepResponse
+} from "../types"
+import { env } from "../config/env"
+import axios from "axios"
+import { BadRequestError, InternalServerError } from "../utils/errors"
+import { logger } from "../config/logger"
 
 export class GeolocationAPI {
     /**
