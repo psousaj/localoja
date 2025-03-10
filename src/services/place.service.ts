@@ -1,12 +1,11 @@
 import { AppDataSource } from "../database"
 import { Place } from "../database/entities/place.entity"
-import { Repository, TypeORMError } from "typeorm"
+import { Point, Repository, TypeORMError } from "typeorm"
 import { GeolocationAPI } from "./geolocation.service"
 import { BadRequestError, ConflictError, } from "../utils/errors"
-import { ErrorCodes } from "../types"
+import { ErrorCodes, PlaceLocation, PlaceType, PointObject, RouteDistance } from "../types"
 import { logger } from "../config/logger"
 import { CreatePlaceDto } from "../database/dto/create-location.dto"
-import { add } from "winston"
 
 export class PlaceService {
     constructor(
@@ -14,8 +13,6 @@ export class PlaceService {
         private geoLocationService = GeolocationAPI
     ) { }
 
-    // async getLocationsByRadius(latitude: number, longitude: number, radius: number): Promise<Place[]> {
-    // }
     async getGeoLocationByAddress(address: string) {
         logger.debug(`Getting geo location by address: ${address}`)
         logger.debug(`Encoded Address: ${encodeURIComponent(address)}`)
@@ -24,7 +21,42 @@ export class PlaceService {
         return locations
     }
 
-    private async getLocationPoint(cep?: string, lat?: number, lng?: number, place?: CreatePlaceDto) {
+    async findAddressByCep(cep: string) {
+        return this.geoLocationService.getPlaceByCep(cep)
+    }
+
+    /**
+     * Returns the saved places within a specified radius from the origin location.
+     *
+     * @param origin - The starting location from which distances are calculated.
+     * @param radius - The maximum allowed radius in kilometers (default: 100 km).
+     * @returns A list of places within the specified radius, including the calculated distance.
+     */
+    private async getNearestPlaces(
+        origin: PlaceLocation,
+        radius: number = 100
+    ): Promise<(Place & { distanceToOrigin: RouteDistance })[]> {
+        const savedPlaces = await this.getLocations()
+
+        const placesWithDistance = await Promise.all(
+            savedPlaces.map(async (place) => {
+                const distance = await this.geoLocationService.getRoutesToPlace(
+                    origin,
+                    {
+                        lat: place.location.coordinates[0],
+                        lng: place.location.coordinates[1]
+                    }
+                );
+
+                return { ...place, distanceToOrigin: distance };
+            })
+        )
+
+        // Filter places that are within the specified radius
+        return placesWithDistance.filter((place) => place.distanceToOrigin.distanceMeters <= radius * 1000) // Convert km to meters
+    }
+
+    private async getLocationPoint(cep?: string, lat?: number, lng?: number, place?: CreatePlaceDto): Promise<PointObject> {
         let pointObject
 
         if (lat && lng) {
@@ -46,6 +78,32 @@ export class PlaceService {
         }
 
         return pointObject
+    }
+
+    async findNearestPlaceByUserCep(cep: string) {
+        const userLocationPoint = await this.findUserLocation(cep)
+        const nearestPlaces = await this.getNearestPlaces({
+            lat: userLocationPoint.coordinates[0],
+            lng: userLocationPoint.coordinates[1]
+        })
+        return nearestPlaces
+    }
+
+    async findUserLocation(cep: string) {
+        const userLocation = await this.findAddressByCep(cep)
+        const userPlace = {
+            address: userLocation.logradouro,
+            city: userLocation.localidade,
+            state: userLocation.uf,
+            country: 'Brazil',
+            cep: userLocation.cep,
+            name: 'User Location',
+            placeType: PlaceType.USER_LOCATION
+        } as CreatePlaceDto
+
+        const userGeoLocationPoint = await this.getLocationPoint(cep, null, null, userPlace)
+
+        return userGeoLocationPoint
     }
 
     async createPlace(place: CreatePlaceDto): Promise<Place> {
@@ -74,7 +132,7 @@ export class PlaceService {
         return this.placeRepository.findOneBy({ id })
     }
 
-    async getLocationByCep(cep: string): Promise<Place> {
+    async getPlacesByCep(cep: string): Promise<Place> {
         return this.placeRepository.findOneBy({ cep })
     }
 

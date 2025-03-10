@@ -65,12 +65,39 @@ type GeoLocationResponse = {
     status: string
 }
 
-type ControllerMethods = {
-    create: (req: Request, res: Response, next: NextFunction) => Promise<any>
-    listAll: (req: Request, res: Response, next: NextFunction) => Promise<any>
-    delete: (req: Request, res: Response, next: NextFunction) => Promise<any>
-    update: (req: Request, res: Response, next: NextFunction) => Promise<any>
-    getById: (req: Request, res: Response, next: NextFunction) => Promise<any>
+type RouteDistance = {
+    distanceMeters: number,
+    duration: string
+}
+
+type RoutesResponse = {
+    routes: RouteDistance[]
+}
+
+type ViaCepResponse = {
+    cep: string,
+    logradouro: string,
+    complemento: string,
+    unidade: string,
+    bairro: string,
+    localidade: string,
+    uf: string,
+    estado: string,
+    regiao: string,
+    ibge: string,
+    gia: string,
+    ddd: string,
+    siafi: string
+}
+
+type PointObject = {
+    type: 'Point'
+    coordinates: number[]
+}
+
+type PlaceLocation = {
+    lat: number
+    lng: number
 }
 
 enum PlaceType {
@@ -83,6 +110,7 @@ enum PlaceType {
     GROCERY = 'grocery',
     SUPERMARKET = 'supermarket',
     PUBLIC_PLACE = 'public_place',
+    USER_LOCATION = 'user_location',
     NOT_INFORMED = 'not_informed'
 }
 
@@ -115,9 +143,13 @@ export {
     ICacheValue,
     ICacheProps,
     GeoLocationResponse,
+    RoutesResponse,
+    ViaCepResponse,
+    RouteDistance,
     GeolocationResponseResult,
-    ControllerMethods,
+    PointObject,
     HttpStatus,
     ErrorCodes,
-    PlaceType
+    PlaceType,
+    PlaceLocation
 }
