@@ -25,7 +25,7 @@ export default function configureApp(app: Application, db: DataSource) {
 
     // Health Check
     app.get('/health', (req, res) => {
-        res.status(200).json({ status: 'ok', uptime: process.uptime() });
+        res.status(200).json({ status: 'ok', uptime: process.uptime() })
     })
     app.use('/api', apiRouter)
 

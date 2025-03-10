@@ -1,7 +1,7 @@
 import "reflect-metadata"
-import { DataSource } from "typeorm";
-import path from "node:path";
-import { env } from "node:process";
+import { DataSource } from "typeorm"
+import path from "node:path"
+import { env } from "node:process"
 
 const AppDataSource = new DataSource({
     type: "postgres",
@@ -15,7 +15,7 @@ const AppDataSource = new DataSource({
     // logger: typeormLogger,
     // logNotifications: true,
     ssl: true,
-    entities: [path.join(__dirname, '../models/*.entity{.ts,.js}')],
+    entities: [path.join(__dirname, '/entities/*.entity{.ts,.js}')],
     subscribers: [],
     migrations: [],
 })

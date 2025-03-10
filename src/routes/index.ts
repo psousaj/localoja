@@ -1,5 +1,5 @@
-import { Router } from "express";
-import placeRouter from "./placeRouter";
+import { Router } from "express"
+import placeRouter from "./placeRouter"
 
 const apiRouter = Router()
 

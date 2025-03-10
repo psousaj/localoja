@@ -1,10 +1,10 @@
-import { Column, Entity, Index, Point, PrimaryColumn } from "typeorm";
-import { PlaceType } from "../../types";
+import { Column, Entity, Index, Point, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm"
+import { PlaceType } from "../../types"
 
 @Entity('place')
 export class Place {
 
-    @PrimaryColumn("uuid")
+    @PrimaryGeneratedColumn('uuid')
     id: string
 
     @Column({ unique: true, nullable: false })
@@ -25,14 +25,8 @@ export class Place {
     @Column({ unique: false })
     cep: string
 
-    @Column({ unique: false })
-    lat: string
-
-    @Column({ unique: false })
-    lng: string
-
     @Column({ nullable: false, type: 'enum', enum: PlaceType })
-    type: PlaceType
+    placeType: PlaceType
 
     @Index({ spatial: true })
     @Column({

@@ -1,3 +1,4 @@
+import { NextFunction, Request, Response } from "express"
 
 type ICacheProps = {
     stdTTL?: number // (default: 0) número em segundos pra cada elemento no cache. 0 = ilimitado
@@ -64,6 +65,14 @@ type GeoLocationResponse = {
     status: string
 }
 
+type ControllerMethods = {
+    create: (req: Request, res: Response, next: NextFunction) => Promise<any>
+    listAll: (req: Request, res: Response, next: NextFunction) => Promise<any>
+    delete: (req: Request, res: Response, next: NextFunction) => Promise<any>
+    update: (req: Request, res: Response, next: NextFunction) => Promise<any>
+    getById: (req: Request, res: Response, next: NextFunction) => Promise<any>
+}
+
 enum PlaceType {
     STORE = 'store',
     RESTAURANT = 'restaurant',
@@ -84,6 +93,7 @@ enum HttpStatus {
     UNAUTHORIZED = 401,
     FORBIDDEN = 403,
     NOT_FOUND = 404,
+    CONFLICT = 409,
     INTERNAL_SERVER_ERROR = 500
 }
 
@@ -93,6 +103,7 @@ enum ErrorCodes {
     UNAUTHORIZED = 'UNAUTHORIZED',
     FORBIDDEN = 'FORBIDDEN',
     NOT_FOUND = 'NOT_FOUND',
+    CONFLICT = 'CONFLICT',
     INTERNAL_SERVER_ERROR = 'INTERNAL_SERVER_ERROR',
     PLACE_NOT_FOUND = 'PLACE_NOT_FOUND',
     INVALID_ADDRESS = 'INVALID_ADDRESS',
@@ -105,6 +116,7 @@ export {
     ICacheProps,
     GeoLocationResponse,
     GeolocationResponseResult,
+    ControllerMethods,
     HttpStatus,
     ErrorCodes,
     PlaceType

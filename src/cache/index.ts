@@ -1,5 +1,5 @@
-import { logger } from "../config/logger";
-import { ICache, ICacheProps, ICacheValue } from "../types";
+import { logger } from "../config/logger"
+import { ICache, ICacheProps, ICacheValue } from "../types"
 
 /**
  * The AppCache class is a inMemory cache implementation that provides a simple and efficient way to store and retrieve data.
@@ -89,7 +89,7 @@ class AppCache implements ICache {
      * @returns An iterator over the entries in the cache.
      */
     listEntries() {
-        this.cleanup();
+        this.cleanup()
         return this.cache.entries()
     }
 
@@ -185,7 +185,7 @@ class AutoCleanupCache extends AppCache {
     }
 
     stopCache() {
-        clearInterval(this.cleanupInterval);
+        clearInterval(this.cleanupInterval)
     }
 }
 
@@ -211,7 +211,7 @@ export { AppCache }
 //     .then(() => new Promise((resolve) => setTimeout(resolve, 7000)))
 //     .then(() => console.log("Passaram 7 segundos!"))
 //     .then(
-//         () => { console.log(); cache.set('5', 5, 1); console.log("CLEAN", cache.listKeys()) }
+//         () => { console.log() cache.set('5', 5, 1) console.log("CLEAN", cache.listKeys()) }
 //     )
 // cache.set('4', '4')
 // console.log(cache.listEntries())

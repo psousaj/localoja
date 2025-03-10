@@ -67,31 +67,41 @@ class BadRequestError extends BaseError {
 
 class InternalServerError extends BaseError {
     static statusCode = HttpStatus.INTERNAL_SERVER_ERROR
-    constructor(errorCode: string = ErrorCodes.INTERNAL_SERVER_ERROR, message: string) {
-        super(errorCode, message)
+    constructor(message: string, internalError?: Error) {
+        super(ErrorCodes.INTERNAL_SERVER_ERROR, message)
+        if (internalError) {
+            logger.error(`[SERVER ERROR DESCRIPTION] ${internalError.stack}`)
+        }
     }
 }
 
 class UnauthorizedError extends BaseError {
     static statusCode = HttpStatus.UNAUTHORIZED
-    constructor(errorCode: string = ErrorCodes.UNAUTHORIZED, message: string, zodErrors?: string | SafeParseReturnType<any, any>) {
-        super(errorCode, message, zodErrors)
+    constructor(message: string, zodErrors?: string | SafeParseReturnType<any, any>) {
+        super(ErrorCodes.UNAUTHORIZED, message, zodErrors)
     }
 }
 
 class ForbiddenError extends BaseError {
     static statusCode = HttpStatus.FORBIDDEN
-    constructor(errorCode: string = ErrorCodes.FORBIDDEN, message: string) {
-        super(errorCode, message)
+    constructor(message: string) {
+        super(ErrorCodes.FORBIDDEN, message)
     }
 }
 
-const normalizeError = (error: any) => {
+class ConflictError extends BaseError {
+    static statusCode = HttpStatus.CONFLICT
+    constructor(message: string) {
+        super(ErrorCodes.CONFLICT, message)
+    }
+}
+
+const normalizeError = (error: Error | any) => {
     if (error instanceof BaseError) {
         return error
     }
 
-    return new InternalServerError(ErrorCodes.INTERNAL_SERVER_ERROR, error.message)
+    return new InternalServerError("An unexpected error occurred :( try again later", error)
 }
 
 export {
@@ -100,5 +110,6 @@ export {
     InternalServerError,
     NotFoundError,
     UnauthorizedError,
+    ConflictError,
     normalizeError,
 }

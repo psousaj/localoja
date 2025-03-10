@@ -1,10 +1,12 @@
 import { AppDataSource } from "../database"
 import { Place } from "../database/entities/place.entity"
-import { Repository } from "typeorm"
+import { Repository, TypeORMError } from "typeorm"
 import { GeolocationAPI } from "./geolocation.service"
-import { BadRequestError } from "../utils/errors"
+import { BadRequestError, ConflictError, } from "../utils/errors"
 import { ErrorCodes } from "../types"
 import { logger } from "../config/logger"
+import { CreatePlaceDto } from "../database/dto/create-location.dto"
+import { add } from "winston"
 
 export class PlaceService {
     constructor(
@@ -15,19 +17,26 @@ export class PlaceService {
     // async getLocationsByRadius(latitude: number, longitude: number, radius: number): Promise<Place[]> {
     // }
     async getGeoLocationByAddress(address: string) {
+        logger.debug(`Getting geo location by address: ${address}`)
+        logger.debug(`Encoded Address: ${encodeURIComponent(address)}`)
+        // const locations = await this.geoLocationService.getGeoLocationByAddress(encodeURIComponent(address))
         const locations = await this.geoLocationService.getGeoLocationByAddress(address)
         return locations
     }
 
-    async createPlace(place: Place): Promise<Place> {
+    private async getLocationPoint(cep?: string, lat?: number, lng?: number, place?: CreatePlaceDto) {
         let pointObject
-        if (place.lat && place.lng) {
+
+        if (lat && lng) {
             pointObject = {
                 type: 'Point',
-                coordinates: [place.lat, place.lng]
+                coordinates: [lat, lng]
             }
-        } else if (place.cep) {
-            const geoLocations = await this.getGeoLocationByAddress(place.cep)
+        } else if (cep) {
+            const geoLocations = await this.getGeoLocationByAddress(
+                `${place.address}, ${place.city} - ${place.state}, ${place.cep}, ${place.country}`
+                // `${place.cep}`
+            )
             pointObject = {
                 type: 'Point',
                 coordinates: [geoLocations[0].geometry.location.lat, geoLocations[0].geometry.location.lng]
@@ -36,19 +45,27 @@ export class PlaceService {
             throw new BadRequestError(ErrorCodes.INVALID_ADDRESS, 'Invalid location! Please provide a valid CEP or latitude and longitude')
         }
 
-        place.location = pointObject
+        return pointObject
+    }
+
+    async createPlace(place: CreatePlaceDto): Promise<Place> {
+        const pointObject = await this.getLocationPoint(place.cep, place.lat, place.lng, place)
 
         const newPlace = this.placeRepository.create({
-            address: place.address,
-            cep: place.cep,
+            ...place,
             location: pointObject,
-            city: place.city,
-            state: place.state,
-            country: place.country
-        })
+        });
 
-        logger.debug(`Created location: ${JSON.stringify(newPlace)}`)
-        logger.debug(`${newPlace.location}, ${pointObject}`)
+        try {
+            await this.placeRepository.save(newPlace)
+        } catch (error: any) {
+            if (error instanceof TypeORMError) {
+                if (error.message.includes('duplicate key')) {
+                    throw new ConflictError(`Place with NAME ${place.name} and CEP ${place.cep} already exists!`)
+                }
+            }
+            throw error
+        }
 
         return newPlace
     }
@@ -56,6 +73,7 @@ export class PlaceService {
     async getLocationById(id: string): Promise<Place> {
         return this.placeRepository.findOneBy({ id })
     }
+
     async getLocationByCep(cep: string): Promise<Place> {
         return this.placeRepository.findOneBy({ cep })
     }
@@ -64,9 +82,17 @@ export class PlaceService {
         return this.placeRepository.find()
     }
 
-    async updateLocation(id: string, location: Place): Promise<Place> {
-        return this.placeRepository.update(id, location).then(() => location)
+    async updateLocation(id: string, location: Partial<CreatePlaceDto>): Promise<Place> {
+        const pointObject = await this.getLocationPoint(location.cep, location.lat, location.lng, location)
+        const placeWithNewLocation = {
+            ...location,
+            location: pointObject
+        }
+
+        await this.placeRepository.update(id, placeWithNewLocation)
+        return this.placeRepository.findOneBy({ id })
     }
+
 
     async deleteLocation(id: string): Promise<void> {
         this.placeRepository.delete(id)
