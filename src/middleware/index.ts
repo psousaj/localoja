@@ -13,7 +13,7 @@ export default function configureApp(app: Application, db: DataSource) {
         max: 25,
         message: 'Muitas requisições deste IP, tente novamente mais tarde'
     })
-    const cache = new AppCache({ maxKeys: 10 })
+    const cache = new AppCache({ maxKeys: 20 })
 
     app.set('cache', cache)
     global.cache = cache

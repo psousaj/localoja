@@ -10,17 +10,17 @@ import {
 import { env } from "../config/env"
 import axios from "axios"
 import { BadRequestError, InternalServerError } from "../utils/errors"
-import { logger } from "../config/logger"
+import { AppCache } from "../cache"
 
 export class GeolocationAPI {
-    /**
-     * * REFERENCES
-     * * https://developers.google.com/maps/documentation/geocoding/requests-geocoding?hl=pt-br#geocoding-lookup
-     * * https://developers.google.com/maps/documentation/routes/compute_route_directions?hl=pt-br
-     * * https://stackoverflow.com/questions/65041545/how-can-i-use-longitude-and-latitude-with-typeorm-and-postgres
-     **/
+    static cache: AppCache = global.cache
 
     static async getGeoLocationByAddress(address: string): Promise<GeolocationResponseResult[] | null> {
+        const cacheKey = `geolocation:${address}`
+        const cachedData = this.cache.get(cacheKey)
+
+        if (cachedData) return cachedData.value as GeolocationResponseResult[]
+
         try {
             const response = await axios.get<GeoLocationResponse>(`https://maps.googleapis.com/maps/api/geocode/json`, {
                 params: {
@@ -36,6 +36,7 @@ export class GeolocationAPI {
                 throw new BadRequestError(ErrorCodes.PLACE_NOT_FOUND, "No results found")
             }
 
+            this.cache.set(cacheKey, response.data.results, 600)
             return response.data.results
 
         } catch (error: any) {
@@ -51,7 +52,11 @@ export class GeolocationAPI {
     }
 
     static async getRoutesToPlace(origin: PlaceLocation, destination: PlaceLocation): Promise<RouteDistance> {
-        logger.debug(`Getting routes from ${JSON.stringify(origin)} to ${JSON.stringify(destination)}`)
+        const cacheKey = `routes:${origin.latitude},${origin.longitude}-${destination.latitude},${destination.longitude}`
+        const cachedData = this.cache.get(cacheKey)
+
+        if (cachedData) return cachedData.value as RouteDistance
+
         try {
             const response = await axios.post<RoutesResponse>(`https://routes.googleapis.com/directions/v2:computeRoutes`,
                 {
@@ -71,9 +76,9 @@ export class GeolocationAPI {
                             }
                         }
                     },
-                    travelMode: "DRIVE", //Especifies the travel mode for the route default is "DRIVE"
-                    routingPreference: "TRAFFIC_AWARE", //Calculates routes considering real-time traffic conditions
-                    computeAlternativeRoutes: false, //If true, the service will return multiple routes
+                    travelMode: "DRIVE",
+                    routingPreference: "TRAFFIC_AWARE",
+                    computeAlternativeRoutes: false,
                     languageCode: "pt-BR",
                     units: "METRIC"
                 },
@@ -85,11 +90,11 @@ export class GeolocationAPI {
                     }
                 })
 
+            this.cache.set(cacheKey, response.data.routes[0], 600)
             return response.data.routes[0]
 
         } catch (error: any) {
             if (axios.isAxiosError(error)) {
-                logger.error(error.response.data.error.message)
                 throw new InternalServerError(null, error)
             }
             if (error instanceof BadRequestError) {
@@ -101,8 +106,19 @@ export class GeolocationAPI {
     }
 
     static async getPlaceByCep(cep: string): Promise<ViaCepResponse> {
-        const response = await axios.get<ViaCepResponse>(`https://viacep.com.br/ws/${cep}/json/`, {})
+        const cacheKey = `cep:${cep}`
+        const cachedData = this.cache.get(cacheKey)
 
-        return response.data
+        if (cachedData) return cachedData.value as ViaCepResponse
+
+        try {
+            const response = await axios.get<ViaCepResponse>(`https://viacep.com.br/ws/${cep}/json/`)
+
+            this.cache.set(cacheKey, response.data, 86400)
+            return response.data
+
+        } catch (error: any) {
+            throw new InternalServerError("Failed to fetch CEP data", error.message)
+        }
     }
 }

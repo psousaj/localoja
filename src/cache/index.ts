@@ -47,14 +47,15 @@ class AppCache implements ICache {
 
     private add(key: string, { value, ttl }: ICacheValue): void {
         const expiration = this.getExpiration(ttl)
-
         this.cache.set(key, { value, ttl })
         this.keyExpiration.set(key, expiration)
+        logger.info(`Added key: '${key}' to cache with TTL: ${ttl}`)
     }
 
     private delete(key: string): void {
         this.cache.delete(key)
         this.keyExpiration.delete(key)
+        logger.info(`Deleted key: '${key}' from cache`)
     }
 
     /**
@@ -64,15 +65,21 @@ class AppCache implements ICache {
      */
     private retrieve(key: string): ICacheValue | null {
         if (this.isExpired(key)) {
+            logger.info(`Cache miss: '${key}' expired and removed`)
             this.delete(key)
             return null
         }
 
-        const entry = this.cache.get(key)
-        if (!entry) return null
+        const entry = this.cache.get(key);
+        if (!entry) {
+            logger.info(`Cache miss: '${key}' not found`)
+            return null
+        }
 
+        logger.info(`Cache hit: '${key}' retrieved successfully`)
         return entry
     }
+
 
 
     /**
@@ -99,6 +106,7 @@ class AppCache implements ICache {
     flushAll(): void {
         this.cache.clear()
         this.keyExpiration.clear()
+        logger.info("Cache flushed")
     }
 
     get(key: string): ICacheValue | null {
@@ -156,13 +164,11 @@ class AppCache implements ICache {
      */
     ttl(key: string, ttl: number): boolean {
         const entry = this.get(key)
-
         if (entry) {
             this.add(key, { ...entry, ttl })
             this.keyExpiration.set(key, this.getExpiration(ttl))
+            logger.info(`Updated TTL for key: '${key}' to ${ttl}`)
         }
-
-        // Return true if the entry exists, otherwise false
         return entry !== null || undefined
     }
 
@@ -186,6 +192,7 @@ class AutoCleanupCache extends AppCache {
 
     stopCache() {
         clearInterval(this.cleanupInterval)
+        logger.info("Auto cleanup stopped")
     }
 }
 
