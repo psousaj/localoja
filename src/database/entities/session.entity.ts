@@ -1,25 +1,26 @@
-import { ISession } from 'connect-typeorm';
-import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
+// import { ISession } from 'connect-typeorm'
+import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm'
 
 @Entity()
-export class Session implements ISession {
+// export class Session implements ISession {
+export class Session {
     @PrimaryColumn('varchar', { length: 255 })
-    id!: string;
+    id!: string
 
     @Column()
     userId: string
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', update: false })
-    createdAt: Date;
+    createdAt: Date
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', update: true })
-    updatedAt: Date;
+    updatedAt: Date
 
     @Column('bigint')
-    expiredAt!: number;
+    expiredAt!: number
 
     @Column('text')
-    json!: string;
+    json!: string
 
     expiresAt: number
 

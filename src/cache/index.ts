@@ -1,18 +1,32 @@
-import { ICache, ICacheProps, ICacheValue } from "../types";
+import { logger } from "../config/logger"
+import { ICache, ICacheProps, ICacheValue } from "../types"
 
+/**
+ * The AppCache class is a inMemory cache implementation that provides a simple and efficient way to store and retrieve data.
+ * It features key expiration, cache limits, and automatic cleanup.
+ */
 class AppCache implements ICache {
+    private static instance: AppCache
     private cache: Map<string, ICacheValue>
     private keyExpiration: Map<string, number>
     private limit: number
     private stdTTL: number
     protected checkPeriod: number
 
-    constructor({ checkPeriod, maxKeys, stdTTL }: ICacheProps) {
-        this.limit = maxKeys ?? 9
-        this.stdTTL = stdTTL ?? 0
-        this.checkPeriod = checkPeriod ?? 600
+    private constructor({ checkPeriod, maxKeys, stdTTL }: ICacheProps) {
+        this.limit = maxKeys ?? 10
+        this.stdTTL = stdTTL ?? 600
+        this.checkPeriod = checkPeriod ?? 0
         this.cache = new Map()
         this.keyExpiration = new Map()
+    }
+
+    static getInstance(props?: ICacheProps): AppCache {
+        if (!AppCache.instance) {
+            if (!props) throw new Error("AppCache needs properties on first initialization")
+            AppCache.instance = new AppCache(props)
+        }
+        return AppCache.instance
     }
 
     private isExpired(key: string): boolean {
@@ -27,8 +41,13 @@ class AppCache implements ICache {
             if (now >= expiration) {
                 this.cache.delete(key)
                 this.keyExpiration.delete(key)
+                logger.info(`Expired key: '${key}' removed from cache`)
             }
         }
+    }
+
+    protected getCache(): Map<string, ICacheValue> {
+        return this.cache
     }
 
     private getExpiration(ttl: number): number {
@@ -37,47 +56,76 @@ class AppCache implements ICache {
 
     private add(key: string, { value, ttl }: ICacheValue): void {
         const expiration = this.getExpiration(ttl)
-
         this.cache.set(key, { value, ttl })
         this.keyExpiration.set(key, expiration)
+        logger.info(`Added key: '${key}' to cache with TTL: ${ttl}`)
     }
 
     private delete(key: string): void {
         this.cache.delete(key)
         this.keyExpiration.delete(key)
+        logger.info(`Deleted key: '${key}' from cache`)
     }
 
+    /**
+     * Retrieves a value from the cache, returning null if the key has expired or doesn't exist.
+     * @param key The key to retrieve.
+     * @returns The cache entry if found, or null if not.
+     */
     private retrieve(key: string): ICacheValue | null {
         if (this.isExpired(key)) {
+            logger.info(`Cache miss: '${key}' expired and removed`)
             this.delete(key)
             return null
         }
 
         const entry = this.cache.get(key)
-        if (!entry) return null
+        if (!entry) {
+            logger.info(`Cache miss: '${key}' not found`)
+            return null
+        }
 
+        logger.info(`Cache hit: '${key}' retrieved successfully`)
         return entry
     }
 
+
+
+    /**
+     * Retrieves a list of all keys currently in the cache, removing expired entries before.
+     * @returns An array of all keys in the cache.
+     */
     listKeys(): string[] {
         this.cleanup()
         return Array.from(this.cache.keys()) as string[]
     }
 
+    /**
+     * Retrieves a list of all cache entries currently in the cache, removing expired entries before.
+     * @returns An iterator over the entries in the cache.
+     */
     listEntries() {
-        this.cleanup();
+        this.cleanup()
         return this.cache.entries()
     }
 
+    /**
+     * Removes all cache entries from the cache.
+     */
     flushAll(): void {
         this.cache.clear()
         this.keyExpiration.clear()
+        logger.info("Cache flushed")
     }
 
     get(key: string): ICacheValue | null {
         return this.retrieve(key)
     }
 
+    /**
+     * Retrieves a cache entry and removes it from the cache.
+     * @returns The cache entry if it exists, otherwise `null`.
+     */
     take(key: string): ICacheValue | null {
         const entry = this.get(key)
         if (entry) {
@@ -92,15 +140,23 @@ class AppCache implements ICache {
         this.delete(key)
     }
 
+    /**
+     * Adds a cache entry, updating the value and ttl if the key already exists, or deleting the oldest key if the cache is full.
+     * @param key The key to add to the cache.
+     * @param value The value to associate with the key.
+     * @param ttl The time to live for the cache entry in milliseconds.
+     */
     set(key: string, value: any, ttl?: number): void {
         const entryTTL = ttl ?? this.stdTTL
         const entryValue = { value, ttl: entryTTL }
 
+        // If the key already exists, update the value and ttl
         if (this.cache.has(key)) {
             this.add(key, entryValue)
             return
         }
 
+        // If the cache is full, delete the oldest key
         if (this.cache.size >= this.limit) {
             const oldestKey = this.cache.keys().next().value
             this.delete(oldestKey)
@@ -109,36 +165,50 @@ class AppCache implements ICache {
         this.add(key, entryValue)
     }
 
+    /**
+     * Updates the ttl of a cache entry.
+     * @param key The key of the cache entry.
+     * @param ttl The new ttl in milliseconds.
+     * @returns `true` if the cache entry exists, otherwise `false`.
+     */
     ttl(key: string, ttl: number): boolean {
         const entry = this.get(key)
-
-        if (!entry) return false
-
-        console.log("DEBUG", ttl, entry)
-        this.add(key, { ...entry, ttl })
-        this.keyExpiration.set(key, this.getExpiration(ttl))
-
-        return true
+        if (entry) {
+            this.add(key, { ...entry, ttl })
+            this.keyExpiration.set(key, this.getExpiration(ttl))
+            logger.info(`Updated TTL for key: '${key}' to ${ttl}`)
+            return true
+        }
+        return false
     }
 
 }
 
-class AutoCleanupCache extends AppCache {
-    private cleanupInterval: NodeJS.Timeout
+// class AutoCleanupCache extends AppCache {
+//     private cleanupInterval: NodeJS.Timeout
 
-    constructor(props: ICacheProps) {
-        super(props)
-        this.cleanupInterval = setInterval(() => this.cleanup(), (this.checkPeriod ?? 600) * 1000)
-    }
+//     constructor(props: ICacheProps) {
+//         super(props)
+//         this.cleanupInterval = setInterval(() => {
+//             // If the cache is empty, stop the cleanup
+//             if (this.getCache().size === 0) {
+//                 this.stopCache()
+//             }
 
-    stopCache() {
-        clearInterval(this.cleanupInterval);
-    }
-}
+//             // Clean up the cache every checkPeriod seconds
+//             this.cleanup()
+//         }, (this.checkPeriod ?? 600) * 1000)
+//     }
+
+//     stopCache() {
+//         clearInterval(this.cleanupInterval)
+//         logger.info("Auto cleanup stopped")
+//     }
+// }
 
 export { AppCache }
 
-// const cache = new AutoCleanupCache({ maxKeys: 2, stdTTL: 100, checkPeriod: 5 })
+// const cache = new AppCache({ maxKeys: 2, stdTTL: 5, checkPeriod: 5 })
 // cache.set("1", "primeiro valor")
 // cache.set("2", "segundo valor")
 // console.log(cache.listEntries())
@@ -156,9 +226,9 @@ export { AppCache }
 // cache.ttl("3", 5)
 // Promise.resolve()
 //     .then(() => new Promise((resolve) => setTimeout(resolve, 7000)))
-//     .then(() => console.log("Passaram 5 segundos!"))
+//     .then(() => console.log("Passaram 7 segundos!"))
 //     .then(
-//         () => { console.log(); cache.set('5', 5, 1); console.log("CLEAN", cache.listKeys()) }
+//         () => { console.log() cache.set('5', 5, 1) console.log("CLEAN", cache.listKeys()) }
 //     )
 // cache.set('4', '4')
 // console.log(cache.listEntries())

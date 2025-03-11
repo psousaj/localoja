@@ -9,9 +9,11 @@
     "start": "node --env-file=.env dist/server.js",
     "dev": "nodemon --ext ts --exec ts-node -r dotenv/config src/server.ts",
     "build": "tsc",
-    "typeorm": "typeorm-ts-node-commonjs"
+    "typeorm": "typeorm-ts-node-commonjs",
+    "db:seed": "ts-node src/database/seeds/location.seed.ts"
   },
   "dependencies": {
+    "axios": "^1.8.2",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "express-rate-limit": "^7.5.0",
