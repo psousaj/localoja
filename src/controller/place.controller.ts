@@ -11,7 +11,28 @@ export class PlaceController {
     }
 
     static async listAll(req: Request, res: Response, next: NextFunction) {
-        const locations = await locationService.getLocations()
+        const { name, state, city } = req.query
+
+        let locations = await locationService.getLocations()
+
+        if (name) {
+            locations = locations.filter(location =>
+                location.name.toLowerCase().includes(String(name).toLowerCase())
+            )
+        }
+
+        if (state) {
+            locations = locations.filter(location =>
+                location.state.toLowerCase().includes(String(state).toLowerCase())
+            )
+        }
+
+        if (city) {
+            locations = locations.filter(location =>
+                location.city.toLowerCase().includes(String(city).toLowerCase())
+            )
+        }
+
         return res.status(200).json(locations)
     }
 

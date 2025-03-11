@@ -11,6 +11,7 @@ import { env } from "../config/env"
 import axios from "axios"
 import { BadRequestError, InternalServerError } from "../utils/errors"
 import { AppCache } from "../cache"
+import { logger } from "../config/logger"
 
 const cache: AppCache = AppCache.getInstance({ maxKeys: 20 })
 
@@ -53,7 +54,7 @@ export class GeolocationAPI {
     }
 
     static async getRoutesToPlace(origin: PlaceLocation, destination: PlaceLocation): Promise<RouteDistance> {
-        const cacheKey = `routes:${origin.latitude},${origin.longitude}-${destination.latitude},${destination.longitude}`
+        const cacheKey = `routes:${origin.latitude},${origin.longitude}|${destination.latitude},${destination.longitude}`
         const cachedData = cache.get(cacheKey)
 
         if (cachedData) return cachedData.value as RouteDistance
@@ -96,6 +97,12 @@ export class GeolocationAPI {
 
         } catch (error: any) {
             if (axios.isAxiosError(error)) {
+                logger.error(error.response.data.error?.message)
+
+                if (error.response.status === 502) {
+                    throw new InternalServerError("Something went wrong, try again after 30 seconds", error)
+                }
+
                 throw new InternalServerError(null, error)
             }
             if (error instanceof BadRequestError) {
@@ -106,7 +113,7 @@ export class GeolocationAPI {
         }
     }
 
-    static async getPlaceByCep(cep: string): Promise<ViaCepResponse> {
+    static async getPlaceByCep(cep: string): Promise<ViaCepResponse | null> {
         const cacheKey = `cep:${cep}`
         const cachedData = cache.get(cacheKey)
 
@@ -114,6 +121,10 @@ export class GeolocationAPI {
 
         try {
             const response = await axios.get<ViaCepResponse>(`https://viacep.com.br/ws/${cep}/json/`)
+
+            if (response.data.erro) {
+                return null
+            }
 
             cache.set(cacheKey, response.data, 86400)
             return response.data

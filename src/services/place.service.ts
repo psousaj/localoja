@@ -21,7 +21,13 @@ export class PlaceService {
     }
 
     async findAddressByCep(cep: string) {
-        return this.geoLocationService.getPlaceByCep(cep)
+        const placeAddress = await this.geoLocationService.getPlaceByCep(cep)
+
+        if (!placeAddress) {
+            throw new BadRequestError(ErrorCodes.BAD_REQUEST, "CEP not found")
+        }
+
+        return placeAddress
     }
 
     /**

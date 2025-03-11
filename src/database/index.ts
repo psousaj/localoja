@@ -1,7 +1,7 @@
 import "reflect-metadata"
-import { DataSource } from "typeorm"
 import path from "node:path"
 import { env } from "node:process"
+import { DataSource } from "typeorm"
 
 const AppDataSource = new DataSource({
     type: "postgres",
@@ -20,8 +20,5 @@ const AppDataSource = new DataSource({
     migrations: [],
 })
 
-const repositoryProviders = {
-    place: AppDataSource.getRepository('place')
-}
 
-export { AppDataSource, repositoryProviders }
+export { AppDataSource }
