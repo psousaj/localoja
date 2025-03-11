@@ -12,12 +12,13 @@ import axios from "axios"
 import { BadRequestError, InternalServerError } from "../utils/errors"
 import { AppCache } from "../cache"
 
+const cache: AppCache = AppCache.getInstance({ maxKeys: 20 })
+
 export class GeolocationAPI {
-    static cache: AppCache = global.cache
 
     static async getGeoLocationByAddress(address: string): Promise<GeolocationResponseResult[] | null> {
         const cacheKey = `geolocation:${address}`
-        const cachedData = this.cache.get(cacheKey)
+        const cachedData = cache.get(cacheKey)
 
         if (cachedData) return cachedData.value as GeolocationResponseResult[]
 
@@ -36,7 +37,7 @@ export class GeolocationAPI {
                 throw new BadRequestError(ErrorCodes.PLACE_NOT_FOUND, "No results found")
             }
 
-            this.cache.set(cacheKey, response.data.results, 600)
+            cache.set(cacheKey, response.data.results, 600)
             return response.data.results
 
         } catch (error: any) {
@@ -53,7 +54,7 @@ export class GeolocationAPI {
 
     static async getRoutesToPlace(origin: PlaceLocation, destination: PlaceLocation): Promise<RouteDistance> {
         const cacheKey = `routes:${origin.latitude},${origin.longitude}-${destination.latitude},${destination.longitude}`
-        const cachedData = this.cache.get(cacheKey)
+        const cachedData = cache.get(cacheKey)
 
         if (cachedData) return cachedData.value as RouteDistance
 
@@ -90,7 +91,7 @@ export class GeolocationAPI {
                     }
                 })
 
-            this.cache.set(cacheKey, response.data.routes[0], 600)
+            cache.set(cacheKey, response.data.routes[0], 600)
             return response.data.routes[0]
 
         } catch (error: any) {
@@ -107,14 +108,14 @@ export class GeolocationAPI {
 
     static async getPlaceByCep(cep: string): Promise<ViaCepResponse> {
         const cacheKey = `cep:${cep}`
-        const cachedData = this.cache.get(cacheKey)
+        const cachedData = cache.get(cacheKey)
 
         if (cachedData) return cachedData.value as ViaCepResponse
 
         try {
             const response = await axios.get<ViaCepResponse>(`https://viacep.com.br/ws/${cep}/json/`)
 
-            this.cache.set(cacheKey, response.data, 86400)
+            cache.set(cacheKey, response.data, 86400)
             return response.data
 
         } catch (error: any) {

@@ -14,8 +14,7 @@ export class PlaceService {
     ) { }
 
     async getGeoLocationByAddress(address: string) {
-        logger.debug(`Getting geo location by address: ${address}`)
-        logger.debug(`Encoded Address: ${encodeURIComponent(address)}`)
+        logger.info(`Getting geo location by address: ${address}`)
         // const locations = await this.geoLocationService.getGeoLocationByAddress(encodeURIComponent(address))
         const locations = await this.geoLocationService.getGeoLocationByAddress(address)
         return locations

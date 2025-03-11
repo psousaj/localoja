@@ -6,18 +6,27 @@ import { ICache, ICacheProps, ICacheValue } from "../types"
  * It features key expiration, cache limits, and automatic cleanup.
  */
 class AppCache implements ICache {
+    private static instance: AppCache
     private cache: Map<string, ICacheValue>
     private keyExpiration: Map<string, number>
     private limit: number
     private stdTTL: number
     protected checkPeriod: number
 
-    constructor({ checkPeriod, maxKeys, stdTTL }: ICacheProps) {
+    private constructor({ checkPeriod, maxKeys, stdTTL }: ICacheProps) {
         this.limit = maxKeys ?? 10
         this.stdTTL = stdTTL ?? 600
         this.checkPeriod = checkPeriod ?? 0
         this.cache = new Map()
         this.keyExpiration = new Map()
+    }
+
+    static getInstance(props?: ICacheProps): AppCache {
+        if (!AppCache.instance) {
+            if (!props) throw new Error("AppCache needs properties on first initialization")
+            AppCache.instance = new AppCache(props)
+        }
+        return AppCache.instance
     }
 
     private isExpired(key: string): boolean {
@@ -70,7 +79,7 @@ class AppCache implements ICache {
             return null
         }
 
-        const entry = this.cache.get(key);
+        const entry = this.cache.get(key)
         if (!entry) {
             logger.info(`Cache miss: '${key}' not found`)
             return null
@@ -168,33 +177,34 @@ class AppCache implements ICache {
             this.add(key, { ...entry, ttl })
             this.keyExpiration.set(key, this.getExpiration(ttl))
             logger.info(`Updated TTL for key: '${key}' to ${ttl}`)
+            return true
         }
-        return entry !== null || undefined
+        return false
     }
 
 }
 
-class AutoCleanupCache extends AppCache {
-    private cleanupInterval: NodeJS.Timeout
+// class AutoCleanupCache extends AppCache {
+//     private cleanupInterval: NodeJS.Timeout
 
-    constructor(props: ICacheProps) {
-        super(props)
-        this.cleanupInterval = setInterval(() => {
-            // If the cache is empty, stop the cleanup
-            if (this.getCache().size === 0) {
-                this.stopCache()
-            }
+//     constructor(props: ICacheProps) {
+//         super(props)
+//         this.cleanupInterval = setInterval(() => {
+//             // If the cache is empty, stop the cleanup
+//             if (this.getCache().size === 0) {
+//                 this.stopCache()
+//             }
 
-            // Clean up the cache every checkPeriod seconds
-            this.cleanup()
-        }, (this.checkPeriod ?? 600) * 1000)
-    }
+//             // Clean up the cache every checkPeriod seconds
+//             this.cleanup()
+//         }, (this.checkPeriod ?? 600) * 1000)
+//     }
 
-    stopCache() {
-        clearInterval(this.cleanupInterval)
-        logger.info("Auto cleanup stopped")
-    }
-}
+//     stopCache() {
+//         clearInterval(this.cleanupInterval)
+//         logger.info("Auto cleanup stopped")
+//     }
+// }
 
 export { AppCache }
 

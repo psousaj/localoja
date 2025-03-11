@@ -25,7 +25,7 @@ const validateParamsSchema = (schema: ZodSchema) =>
         const result = schema.safeParse(req.params)
 
         if (!result.success) {
-            throw new BadRequestError(ErrorCodes.VALIDATION, "Invalid request parameters", result);
+            throw new BadRequestError(ErrorCodes.VALIDATION, "Invalid request parameters", result)
         }
 
         req.params = result.data
