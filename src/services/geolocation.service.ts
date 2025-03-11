@@ -51,22 +51,23 @@ export class GeolocationAPI {
     }
 
     static async getRoutesToPlace(origin: PlaceLocation, destination: PlaceLocation): Promise<RouteDistance> {
+        logger.debug(`Getting routes from ${JSON.stringify(origin)} to ${JSON.stringify(destination)}`)
         try {
-            const response = await axios.post<RoutesResponse>(`https://routes.googleapis.com/directions/v2:computeRoutes`, {}, {
-                data: {
+            const response = await axios.post<RoutesResponse>(`https://routes.googleapis.com/directions/v2:computeRoutes`,
+                {
                     origin: {
                         location: {
                             latLng: {
-                                latitude: origin.lat,
-                                longitude: origin.lng,
+                                latitude: origin.latitude,
+                                longitude: origin.longitude
                             }
                         }
                     },
                     destination: {
                         location: {
                             latLng: {
-                                latitude: destination.lat,
-                                longitude: destination.lng,
+                                latitude: destination.latitude,
+                                longitude: destination.longitude
                             }
                         }
                     },
@@ -76,13 +77,20 @@ export class GeolocationAPI {
                     languageCode: "pt-BR",
                     units: "METRIC"
                 },
-            })
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Goog-Api-Key": env.GMAPS_GEOCODING_APIKEY,
+                        "X-Goog-FieldMask": "routes.duration,routes.distanceMeters"
+                    }
+                })
 
-            return response.data[0]
+            return response.data.routes[0]
 
         } catch (error: any) {
             if (axios.isAxiosError(error)) {
-                throw new InternalServerError(error.message, error)
+                logger.error(error.response.data.error.message)
+                throw new InternalServerError(null, error)
             }
             if (error instanceof BadRequestError) {
                 throw error

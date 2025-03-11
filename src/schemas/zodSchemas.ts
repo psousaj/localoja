@@ -1,6 +1,16 @@
 import { z } from "zod"
 import { PlaceType } from "../types"
 
+const nearestPlaceSchema = z.object({
+    cep: z.string({ message: "CEP is required" })
+        .trim()
+        .min(8)
+        .max(9)
+        .refine(cep => /^[0-9]{8}$|^[0-9]{5}-[0-9]{3}$/.test(cep), {
+            message: "CEP must be in the format 63000000 or 63000-000"
+        })
+})
+
 const _createPlaceSchema = z.object({
     name: z.string({ message: "Name is required" }).min(3),
     address: z.string({ message: "Address is required" }).min(3),
@@ -45,4 +55,4 @@ const updatePlaceSchema = _createPlaceSchema
     )
 
 
-export { createPlaceSchema, updatePlaceSchema }
+export { createPlaceSchema, updatePlaceSchema, nearestPlaceSchema }

@@ -43,17 +43,19 @@ export class PlaceService {
                 const distance = await this.geoLocationService.getRoutesToPlace(
                     origin,
                     {
-                        lat: place.location.coordinates[0],
-                        lng: place.location.coordinates[1]
+                        latitude: place.location.coordinates[0],
+                        longitude: place.location.coordinates[1]
                     }
-                );
+                )
 
-                return { ...place, distanceToOrigin: distance };
+                return { ...place, distanceToOrigin: distance }
             })
         )
 
         // Filter places that are within the specified radius
-        return placesWithDistance.filter((place) => place.distanceToOrigin.distanceMeters <= radius * 1000) // Convert km to meters
+        return placesWithDistance
+            .filter((place) => place.distanceToOrigin.distanceMeters <= radius * 1000) // Convert km to meters
+            .sort((a, b) => a.distanceToOrigin.distanceMeters - b.distanceToOrigin.distanceMeters) //order from closest to farthest
     }
 
     private async getLocationPoint(cep?: string, lat?: number, lng?: number, place?: CreatePlaceDto): Promise<PointObject> {
@@ -83,8 +85,8 @@ export class PlaceService {
     async findNearestPlaceByUserCep(cep: string) {
         const userLocationPoint = await this.findUserLocation(cep)
         const nearestPlaces = await this.getNearestPlaces({
-            lat: userLocationPoint.coordinates[0],
-            lng: userLocationPoint.coordinates[1]
+            latitude: userLocationPoint.coordinates[0],
+            longitude: userLocationPoint.coordinates[1]
         })
         return nearestPlaces
     }
@@ -112,7 +114,7 @@ export class PlaceService {
         const newPlace = this.placeRepository.create({
             ...place,
             location: pointObject,
-        });
+        })
 
         try {
             await this.placeRepository.save(newPlace)

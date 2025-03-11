@@ -1,6 +1,7 @@
 import { ErrorCodes, HttpStatus } from "../types"
 import { logger } from "../config/logger"
-import { SafeParseReturnType } from "zod"
+import { SafeParseReturnType, ZodError } from "zod"
+import { format } from "path"
 
 type BaseErrorConstructor = {
     new(...args: any[]): BaseError
@@ -26,7 +27,7 @@ class BaseError extends Error {
         this.zodErrors = zodErrors
             ? typeof zodErrors === "string"
                 ? zodErrors
-                : zodErrors.error.format()
+                : formatZodErrors(zodErrors.error)
             : undefined
 
         const ipInfo = remoteIp ? ` - IP: ${remoteIp}` : ""
@@ -67,8 +68,8 @@ class BadRequestError extends BaseError {
 
 class InternalServerError extends BaseError {
     static statusCode = HttpStatus.INTERNAL_SERVER_ERROR
-    constructor(message: string, internalError?: Error) {
-        super(ErrorCodes.INTERNAL_SERVER_ERROR, message)
+    constructor(message?: string, internalError?: Error) {
+        super(ErrorCodes.INTERNAL_SERVER_ERROR, message ?? "An unexpected error occurred :( try again later")
         if (internalError) {
             logger.error(`[SERVER ERROR DESCRIPTION] ${internalError.stack}`)
         }
@@ -104,6 +105,11 @@ const normalizeError = (error: Error | any) => {
     return new InternalServerError("An unexpected error occurred :( try again later", error)
 }
 
+const formatZodErrors = (zodError: ZodError) => {
+    return zodError.errors.map(err => `${err.path.join(".")}: ${err.message}`)
+}
+
+
 export {
     BadRequestError,
     ForbiddenError,
@@ -112,4 +118,5 @@ export {
     UnauthorizedError,
     ConflictError,
     normalizeError,
+    formatZodErrors
 }

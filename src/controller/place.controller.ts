@@ -1,5 +1,5 @@
-import { NextFunction, Request, Response } from 'express';
-import { PlaceService } from '../services/place.service';
+import { NextFunction, Request, Response } from 'express'
+import { PlaceService } from '../services/place.service'
 
 const locationService = new PlaceService()
 

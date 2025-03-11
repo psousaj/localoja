@@ -96,8 +96,8 @@ type PointObject = {
 }
 
 type PlaceLocation = {
-    lat: number
-    lng: number
+    latitude: number
+    longitude: number
 }
 
 enum PlaceType {

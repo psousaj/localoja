@@ -11,7 +11,7 @@ const wrapAction = (action: any) => async (req: Request, res: Response, next: Ne
     }
 }
 
-const validateSchema = (schema: ZodSchema) => (req: Request, res: Response, next: NextFunction) => {
+const validateBodySchema = (schema: ZodSchema) => (req: Request, res: Response, next: NextFunction) => {
     const result = schema.safeParse(req.body)
     if (!result.success) {
         throw new BadRequestError(ErrorCodes.VALIDATION, "Invalid request body", result)
@@ -20,8 +20,20 @@ const validateSchema = (schema: ZodSchema) => (req: Request, res: Response, next
     next()
 }
 
+const validateParamsSchema = (schema: ZodSchema) =>
+    (req: Request, res: Response, next: NextFunction) => {
+        const result = schema.safeParse(req.params)
+
+        if (!result.success) {
+            throw new BadRequestError(ErrorCodes.VALIDATION, "Invalid request parameters", result);
+        }
+
+        req.params = result.data
+        next()
+    }
 
 export {
     wrapAction,
-    validateSchema
+    validateBodySchema,
+    validateParamsSchema
 }
