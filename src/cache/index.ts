@@ -35,6 +35,11 @@ class AppCache implements ICache {
         return Date.now() > expiration
     }
 
+    /**
+     * Periodically removes expired keys from the cache and from the expiration map.
+     * The cleanup is done by iterating over the expiration map and deleting any keys
+     * that have an expiration date in the past.
+     */
     protected cleanup(): void {
         const now = Date.now()
         for (const [key, expiration] of this.keyExpiration.entries()) {
@@ -118,8 +123,13 @@ class AppCache implements ICache {
         logger.info("Cache flushed")
     }
 
-    get(key: string): ICacheValue | null {
-        return this.retrieve(key)
+    /**
+     * Retrieves a value from the cache, returning null if the key has expired or doesn't exist.
+     * @param key The key to retrieve.
+     * @returns The cache entry if found, or null if not.
+     */
+    get<T = ICacheValue>(key: string): T | null {
+        return this.retrieve(key).value as T | null
     }
 
     /**

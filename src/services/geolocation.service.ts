@@ -19,9 +19,9 @@ export class GeolocationAPI {
 
     static async getGeoLocationByAddress(address: string): Promise<GeolocationResponseResult[] | null> {
         const cacheKey = `geolocation:${address}`
-        const cachedData = cache.get(cacheKey)
+        const cachedData = cache.get<GeolocationResponseResult[]>(cacheKey)
 
-        if (cachedData) return cachedData.value as GeolocationResponseResult[]
+        if (cachedData) return cachedData
 
         try {
             const response = await axios.get<GeoLocationResponse>(`https://maps.googleapis.com/maps/api/geocode/json`, {
@@ -55,9 +55,9 @@ export class GeolocationAPI {
 
     static async getRoutesToPlace(origin: PlaceLocation, destination: PlaceLocation): Promise<RouteDistance> {
         const cacheKey = `routes:${origin.latitude},${origin.longitude}|${destination.latitude},${destination.longitude}`
-        const cachedData = cache.get(cacheKey)
+        const cachedData = cache.get<RouteDistance>(cacheKey)
 
-        if (cachedData) return cachedData.value as RouteDistance
+        if (cachedData) return cachedData
 
         try {
             const response = await axios.post<RoutesResponse>(`https://routes.googleapis.com/directions/v2:computeRoutes`,
@@ -115,9 +115,9 @@ export class GeolocationAPI {
 
     static async getPlaceByCep(cep: string): Promise<ViaCepResponse | null> {
         const cacheKey = `cep:${cep}`
-        const cachedData = cache.get(cacheKey)
+        const cachedData = cache.get<ViaCepResponse>(cacheKey)
 
-        if (cachedData) return cachedData.value as ViaCepResponse
+        if (cachedData) return cachedData
 
         try {
             const response = await axios.get<ViaCepResponse>(`https://viacep.com.br/ws/${cep}/json/`)
