@@ -128,19 +128,20 @@ class AppCache implements ICache {
      * @param key The key to retrieve.
      * @returns The cache entry if found, or null if not.
      */
-    get<T = ICacheValue>(key: string): T | null {
-        return this.retrieve(key).value as T | null
+    get<T = ICacheValue['value']>(key: string): T | null {
+        const cached = this.retrieve(key)
+        return cached ? (cached.value as T) : null
     }
 
     /**
      * Retrieves a cache entry and removes it from the cache.
      * @returns The cache entry if it exists, otherwise `null`.
      */
-    take(key: string): ICacheValue | null {
-        const entry = this.get(key)
+    take<T = ICacheValue['value']>(key: string): T | null {
+        const entry = this.get<T>(key)
         if (entry) {
             this.del(key)
-            return entry
+            return entry as T
         }
 
         return null
@@ -182,7 +183,7 @@ class AppCache implements ICache {
      * @returns `true` if the cache entry exists, otherwise `false`.
      */
     ttl(key: string, ttl: number): boolean {
-        const entry = this.get(key)
+        const entry = this.retrieve(key)
         if (entry) {
             this.add(key, { ...entry, ttl })
             this.keyExpiration.set(key, this.getExpiration(ttl))

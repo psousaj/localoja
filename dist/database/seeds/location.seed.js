@@ -15,11 +15,8 @@ const locations = [
         placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
-            coordinates: [
-                -7.222379,
-                -39.3137199
-            ]
-        }
+            coordinates: [-7.222379, -39.3137199],
+        },
     },
     {
         name: "Azteca Calçados Centro",
@@ -31,11 +28,8 @@ const locations = [
         placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
-            coordinates: [
-                -7.2071561,
-                -39.3174746
-            ]
-        }
+            coordinates: [-7.2071561, -39.3174746],
+        },
     },
     {
         name: "Azteca Calçados Matriz",
@@ -47,11 +41,8 @@ const locations = [
         placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
-            coordinates: [
-                -7.2035103,
-                -39.3180094
-            ]
-        }
+            coordinates: [-7.2035103, -39.3180094],
+        },
     },
     {
         name: "Azteca Calçados Centro 02",
@@ -63,27 +54,8 @@ const locations = [
         placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
-            coordinates: [
-                -7.2052314,
-                -39.3180235
-            ]
-        }
-    },
-    {
-        name: "Azteca Calçados Centro 01",
-        address: "R. São Pedro, 756",
-        city: "Juazeiro do Norte",
-        state: "CE",
-        country: "Brasil",
-        cep: "63010-010",
-        placeType: types_1.PlaceType.STORE,
-        location: {
-            type: "Point",
-            coordinates: [
-                -7.2058257,
-                -39.3179958
-            ]
-        }
+            coordinates: [-7.2052314, -39.3180235],
+        },
     },
     {
         name: "Azteca Calçados Barbalha Centro",
@@ -95,11 +67,8 @@ const locations = [
         placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
-            coordinates: [
-                -7.311282,
-                -39.3017165
-            ]
-        }
+            coordinates: [-7.311282, -39.3017165],
+        },
     },
     {
         name: "Azteca Calçados Iguatu Centro",
@@ -111,11 +80,8 @@ const locations = [
         placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
-            coordinates: [
-                -6.3621888,
-                -39.2974996
-            ]
-        }
+            coordinates: [-6.3621888, -39.2974996],
+        },
     },
     {
         name: "Azteca Calçados Brejo Santo",
@@ -127,11 +93,8 @@ const locations = [
         placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
-            coordinates: [
-                -7.4936995,
-                -38.9856467
-            ]
-        }
+            coordinates: [-7.4936995, -38.9856467],
+        },
     },
     {
         name: "Azteca Calçados Ico",
@@ -143,11 +106,8 @@ const locations = [
         placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
-            coordinates: [
-                -6.4019784,
-                -38.8600378
-            ]
-        }
+            coordinates: [-6.4019784, -38.8600378],
+        },
     },
     {
         name: "Azteca Calçados Crato 01",
@@ -159,11 +119,8 @@ const locations = [
         placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
-            coordinates: [
-                -7.2319647,
-                -39.4115015
-            ]
-        }
+            coordinates: [-7.2319647, -39.4115015],
+        },
     },
     {
         name: "Azteca Calçados Crato 02",
@@ -175,11 +132,8 @@ const locations = [
         placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
-            coordinates: [
-                -7.2324506,
-                -39.411766
-            ]
-        }
+            coordinates: [-7.2324506, -39.411766],
+        },
     },
     {
         name: "Azteca Calçados Caucaia",
@@ -191,11 +145,8 @@ const locations = [
         placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
-            coordinates: [
-                -3.7661655,
-                -38.6211067
-            ]
-        }
+            coordinates: [-3.7661655, -38.6211067],
+        },
     },
     {
         name: "Azteca Calçados Serra Talhada",
@@ -207,11 +158,8 @@ const locations = [
         placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
-            coordinates: [
-                -7.9904208,
-                -38.3014753
-            ]
-        }
+            coordinates: [-7.9904208, -38.3014753],
+        },
     },
     {
         name: "Azteca Calçados Araripina",
@@ -223,11 +171,8 @@ const locations = [
         placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
-            coordinates: [
-                -7.5758317,
-                -40.4982745
-            ]
-        }
+            coordinates: [-7.5758317, -40.4982745],
+        },
     },
     {
         name: "Azteca Calçados Campina Grande",
@@ -239,14 +184,12 @@ const locations = [
         placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
-            coordinates: [
-                -7.2183155,
-                -35.8834047
-            ]
-        }
-    }
+            coordinates: [-7.2183155, -35.8834047],
+        },
+    },
 ];
 const seedDatabase = async () => {
+    logger_1.logger.debug('Iniciando seed de locais...');
     await __1.AppDataSource.initialize();
     logger_1.logger.debug('Banco de dados conectado');
     const placeRepo = __1.AppDataSource.getRepository(place_entity_1.Place);

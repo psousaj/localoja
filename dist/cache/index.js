@@ -109,7 +109,8 @@ class AppCache {
      * @returns The cache entry if found, or null if not.
      */
     get(key) {
-        return this.retrieve(key).value;
+        const cached = this.retrieve(key);
+        return cached ? cached.value : null;
     }
     /**
      * Retrieves a cache entry and removes it from the cache.
@@ -154,7 +155,7 @@ class AppCache {
      * @returns `true` if the cache entry exists, otherwise `false`.
      */
     ttl(key, ttl) {
-        const entry = this.get(key);
+        const entry = this.retrieve(key);
         if (entry) {
             this.add(key, { ...entry, ttl });
             this.keyExpiration.set(key, this.getExpiration(ttl));
