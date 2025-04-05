@@ -248,6 +248,8 @@ const locations = [
 ]
 
 const seedDatabase = async () => {
+    logger.debug('Iniciando seed de locais...')
+
     await AppDataSource.initialize()
     logger.debug('Banco de dados conectado')
 
