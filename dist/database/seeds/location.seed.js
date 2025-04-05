@@ -1,6 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const __1 = require("..");
+const logger_1 = require("../../config/logger");
+const types_1 = require("../../types");
+const place_entity_1 = require("../entities/place.entity");
 const locations = [
     {
         name: "Azteca Calçados Pirajá",
@@ -9,7 +12,7 @@ const locations = [
         state: "CE",
         country: "Brasil",
         cep: "63034-012",
-        placeType: "store",
+        placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
             coordinates: [
@@ -25,7 +28,7 @@ const locations = [
         state: "CE",
         country: "Brasil",
         cep: "63010-125",
-        placeType: "store",
+        placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
             coordinates: [
@@ -41,7 +44,7 @@ const locations = [
         state: "CE",
         country: "Brasil",
         cep: "63010-010",
-        placeType: "store",
+        placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
             coordinates: [
@@ -57,7 +60,7 @@ const locations = [
         state: "CE",
         country: "Brasil",
         cep: "63010-010",
-        placeType: "store",
+        placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
             coordinates: [
@@ -73,7 +76,7 @@ const locations = [
         state: "CE",
         country: "Brasil",
         cep: "63010-010",
-        placeType: "store",
+        placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
             coordinates: [
@@ -89,7 +92,7 @@ const locations = [
         state: "CE",
         country: "Brasil",
         cep: "63180-000",
-        placeType: "store",
+        placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
             coordinates: [
@@ -105,7 +108,7 @@ const locations = [
         state: "CE",
         country: "Brasil",
         cep: "63500-050",
-        placeType: "store",
+        placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
             coordinates: [
@@ -121,7 +124,7 @@ const locations = [
         state: "CE",
         country: "Brasil",
         cep: "63260-000",
-        placeType: "store",
+        placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
             coordinates: [
@@ -137,7 +140,7 @@ const locations = [
         state: "CE",
         country: "Brasil",
         cep: "63430-000",
-        placeType: "store",
+        placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
             coordinates: [
@@ -153,7 +156,7 @@ const locations = [
         state: "CE",
         country: "Brasil",
         cep: "63100-050",
-        placeType: "store",
+        placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
             coordinates: [
@@ -169,7 +172,7 @@ const locations = [
         state: "CE",
         country: "Brasil",
         cep: "63100-050",
-        placeType: "store",
+        placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
             coordinates: [
@@ -185,7 +188,7 @@ const locations = [
         state: "CE",
         country: "Brasil",
         cep: "61650-000",
-        placeType: "store",
+        placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
             coordinates: [
@@ -201,7 +204,7 @@ const locations = [
         state: "PE",
         country: "Brasil",
         cep: "56903-400",
-        placeType: "store",
+        placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
             coordinates: [
@@ -217,7 +220,7 @@ const locations = [
         state: "PE",
         country: "Brasil",
         cep: "56280-000",
-        placeType: "store",
+        placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
             coordinates: [
@@ -233,7 +236,7 @@ const locations = [
         state: "PB",
         country: "Brasil",
         cep: "58400-000",
-        placeType: "store",
+        placeType: types_1.PlaceType.STORE,
         location: {
             type: "Point",
             coordinates: [
@@ -245,11 +248,20 @@ const locations = [
 ];
 const seedDatabase = async () => {
     await __1.AppDataSource.initialize();
-    console.log('Banco de dados conectado');
-    const locationRepo = __1.AppDataSource.getRepository(Location);
-    await locationRepo.save(locations);
-    console.log('Dados inseridos com sucesso');
+    logger_1.logger.debug('Banco de dados conectado');
+    const placeRepo = __1.AppDataSource.getRepository(place_entity_1.Place);
+    await Promise.all(locations.map(async (place) => {
+        const exists = await placeRepo.findOneBy({ name: place.name });
+        if (!exists) {
+            await placeRepo.save(place);
+            logger_1.logger.debug(`Local ${place.name} inserido`);
+        }
+        else {
+            logger_1.logger.debug(`Local ${place.name} já existe, pulando...`);
+        }
+    }));
+    logger_1.logger.debug('Seed finalizada');
     await __1.AppDataSource.destroy();
 };
-seedDatabase().catch((err) => console.error('Erro ao rodar seed:', err));
+seedDatabase().catch((err) => logger_1.logger.error('Erro ao rodar seed: ', err));
 //# sourceMappingURL=location.seed.js.map

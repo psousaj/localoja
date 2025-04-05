@@ -27,7 +27,7 @@ const logger = winston_1.default.createLogger({
         //     )
         // }),
         new winston_1.default.transports.File({
-            filename: 'errors.json',
+            filename: 'logs/errors.json',
             level: 'error',
             format: winston_1.default.format.combine(winston_1.default.format.timestamp(), winston_1.default.format.json())
         })

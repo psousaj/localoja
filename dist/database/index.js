@@ -5,23 +5,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppDataSource = void 0;
 require("reflect-metadata");
-const typeorm_1 = require("typeorm");
 const node_path_1 = __importDefault(require("node:path"));
-const env_1 = require("../utils/env");
-const typeormLogger_1 = require("../utils/typeormLogger");
+const node_process_1 = require("node:process");
+const typeorm_1 = require("typeorm");
 const AppDataSource = new typeorm_1.DataSource({
     type: "postgres",
-    host: env_1.env.PGHOST,
+    host: node_process_1.env.PGHOST,
     port: 5432,
-    username: env_1.env.PGUSER,
-    password: env_1.env.PGPASSWORD,
-    database: env_1.env.PGDATABASE,
+    username: node_process_1.env.PGUSER,
+    password: node_process_1.env.PGPASSWORD,
+    database: node_process_1.env.PGDATABASE,
     synchronize: true, //disable on production
-    logging: true,
-    logger: typeormLogger_1.typeormLogger,
-    logNotifications: true,
+    // logging: true,
+    // logger: typeormLogger,
+    // logNotifications: true,
     ssl: true,
-    entities: [node_path_1.default.join(__dirname, '../models/*.entity{.ts,.js}')],
+    entities: [node_path_1.default.join(__dirname, '/entities/*.entity{.ts,.js}')],
     subscribers: [],
     migrations: [],
 });

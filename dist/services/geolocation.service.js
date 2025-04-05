@@ -16,7 +16,7 @@ class GeolocationAPI {
         const cacheKey = `geolocation:${address}`;
         const cachedData = cache.get(cacheKey);
         if (cachedData)
-            return cachedData.value;
+            return cachedData;
         try {
             const response = await axios_1.default.get(`https://maps.googleapis.com/maps/api/geocode/json`, {
                 params: {
@@ -47,7 +47,7 @@ class GeolocationAPI {
         const cacheKey = `routes:${origin.latitude},${origin.longitude}|${destination.latitude},${destination.longitude}`;
         const cachedData = cache.get(cacheKey);
         if (cachedData)
-            return cachedData.value;
+            return cachedData;
         try {
             const response = await axios_1.default.post(`https://routes.googleapis.com/directions/v2:computeRoutes`, {
                 origin: {
@@ -99,7 +99,7 @@ class GeolocationAPI {
         const cacheKey = `cep:${cep}`;
         const cachedData = cache.get(cacheKey);
         if (cachedData)
-            return cachedData.value;
+            return cachedData;
         try {
             const response = await axios_1.default.get(`https://viacep.com.br/ws/${cep}/json/`);
             if (response.data.erro) {

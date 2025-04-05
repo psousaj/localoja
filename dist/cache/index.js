@@ -28,6 +28,11 @@ class AppCache {
             return false;
         return Date.now() > expiration;
     }
+    /**
+     * Periodically removes expired keys from the cache and from the expiration map.
+     * The cleanup is done by iterating over the expiration map and deleting any keys
+     * that have an expiration date in the past.
+     */
     cleanup() {
         const now = Date.now();
         for (const [key, expiration] of this.keyExpiration.entries()) {
@@ -98,8 +103,13 @@ class AppCache {
         this.keyExpiration.clear();
         logger_1.logger.info("Cache flushed");
     }
+    /**
+     * Retrieves a value from the cache, returning null if the key has expired or doesn't exist.
+     * @param key The key to retrieve.
+     * @returns The cache entry if found, or null if not.
+     */
     get(key) {
-        return this.retrieve(key);
+        return this.retrieve(key).value;
     }
     /**
      * Retrieves a cache entry and removes it from the cache.

@@ -1,5 +1,5 @@
 import { Logger } from "typeorm"
-import { logger as winstonLogger } from '../utils/logger'
+import { logger as winstonLogger } from '../config/logger'
 
 export const typeormLogger: Logger = {
     log: (level: "log" | "info" | "warn", message: any) => {
