@@ -3,6 +3,8 @@ import { ConfigModule as AppConfigModule } from './config/config.module';
 import { CoreModule } from './core/core.module';
 import { envSchema } from './config/env/env.validation'
 import { ConfigModule } from '@nestjs/config';
+import { PlaceModule } from './domain/place/place.module';
+import { DatabaseModule } from './core/database/database.module';
 
 @Module({
   imports: [
@@ -11,7 +13,9 @@ import { ConfigModule } from '@nestjs/config';
       isGlobal: true,
     }),
     AppConfigModule,
-    CoreModule
+    CoreModule,
+    PlaceModule,
+    DatabaseModule
   ],
 })
 export class AppModule { }
