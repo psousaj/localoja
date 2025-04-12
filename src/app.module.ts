@@ -5,6 +5,7 @@ import { envSchema } from './config/env/env.validation'
 import { ConfigModule } from '@nestjs/config';
 import { PlaceModule } from './domain/place/place.module';
 import { DatabaseModule } from './core/database/database.module';
+import { AuthModule } from './domain/auth/auth.module';
 
 @Module({
   imports: [
@@ -15,7 +16,8 @@ import { DatabaseModule } from './core/database/database.module';
     AppConfigModule,
     CoreModule,
     PlaceModule,
-    DatabaseModule
+    DatabaseModule,
+    AuthModule
   ],
 })
 export class AppModule { }

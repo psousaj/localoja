@@ -1,4 +1,4 @@
-import { PlaceType } from "src/shared/types"
+import { PlaceType } from "src/types"
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm"
 
 @Entity('place')

@@ -5584,6 +5584,11 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==
 
+typeorm-store@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/typeorm-store/-/typeorm-store-2.0.1.tgz#c7ae126c9f055f9b4f3e25749e07b97347a9ab52"
+  integrity sha512-GAWfICUOIS9QGNiHrf9z6snnorr4gAY0uqK31EE1DmGxLMHZTh6m48FpoY4Bs0n+0ti769E1vmtgnlNUVqlVdQ==
+
 typeorm@^0.3.22:
   version "0.3.22"
   resolved "https://registry.yarnpkg.com/typeorm/-/typeorm-0.3.22.tgz#74b56af4a495b6c8eda887dc9aa4670782b991ff"

@@ -4,7 +4,8 @@ import * as path from 'path';
 
 export const databaseProviders = [
     {
-        provide: 'DATA_SOURCE',
+        // provide: 'DATA_SOURCE', // A unique name for the data source
+        provide: DataSource, // The class itself is used as the provider token
         useFactory: async (env: EnvService) => {
             const currentNodeEnv = env.get('NODE_ENV')
             const dataSource = new DataSource({
