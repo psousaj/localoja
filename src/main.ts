@@ -13,7 +13,7 @@ async function bootstrap() {
   const env = app.get(EnvService);
 
   app.enableCors({
-    origin: process.env.CORS_ORIGIN,
+    origin: env.get('CORS_ORIGIN'),
     credentials: true,
   });
 
