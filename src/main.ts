@@ -5,18 +5,23 @@ import * as session from 'express-session';
 import { AppModule } from './app.module';
 import { SessionEntity } from './domain/auth/session.entity'
 import { EnvService } from './config/env/env.service'
-import { DataSource } from 'typeorm';
+import { ValidationPipe } from '@nestjs/common';
+import { DB_TAG } from './config/const';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const dataSource = app.get(DataSource);
+  const dataSource = app.get(DB_TAG);
   const env = app.get(EnvService);
 
+  // CONFIGURATION
   app.enableCors({
-    origin: env.get('CORS_ORIGIN'),
+    origin: env.get('CORS_ORIGIN').split(',').map(o => o.trim()),
     credentials: true,
   });
+  app.setGlobalPrefix('api/v2');
 
+
+  // MIDDLEWARE
   app.use(
     session({
       secret: env.get('SESSION_SECRET'),
@@ -29,6 +34,11 @@ async function bootstrap() {
       })
     })
   )
+
+  // PIPES
+  app.useGlobalPipes(new ValidationPipe({
+    errorHttpStatusCode: 422,
+  }))
 
   await app.listen(env.get('PORT'), '0.0.0.0');
 }

@@ -90,43 +90,29 @@ type ViaCepResponse = {
     erro?: string
 }
 
-type PointObject = {
-    type: 'Point'
-    coordinates: number[]
-}
 
 type PlaceLocation = {
     latitude: number
     longitude: number
 }
 
-enum PlaceType {
+type StorePinMap = {
+    position: {
+        lat: string,
+        lng: string
+    },
+    title: string
+}
+
+enum StoreType {
     PDV = 'PDV',
     LOJA = 'LOJA',
 }
 
-enum HttpStatus {
-    OK = 200,
-    CREATED = 201,
-    BAD_REQUEST = 400,
-    UNAUTHORIZED = 401,
-    FORBIDDEN = 403,
-    NOT_FOUND = 404,
-    CONFLICT = 409,
-    INTERNAL_SERVER_ERROR = 500
-}
-
-enum ErrorCodes {
-    BAD_REQUEST = 'BAD_REQUEST',
-    VALIDATION = 'VALIDATION_ERROR',
-    UNAUTHORIZED = 'UNAUTHORIZED',
-    FORBIDDEN = 'FORBIDDEN',
-    NOT_FOUND = 'NOT_FOUND',
-    CONFLICT = 'CONFLICT',
-    INTERNAL_SERVER_ERROR = 'INTERNAL_SERVER_ERROR',
-    PLACE_NOT_FOUND = 'PLACE_NOT_FOUND',
-    INVALID_ADDRESS = 'INVALID_ADDRESS',
-    INVALID_PLACE_ID = 'INVALID_PLACE_ID',
+enum RepoTags {
+    STORE = 'STORE',
+    DELIVERY = 'DELIVERY',
+    DELIVERY_CONFIG = 'DELIVERY_CONFIG',
 }
 
 export {
@@ -138,9 +124,8 @@ export {
     ViaCepResponse,
     RouteDistance,
     GeolocationResponseResult,
-    PointObject,
-    HttpStatus,
-    ErrorCodes,
-    PlaceType,
-    PlaceLocation
+    StoreType,
+    PlaceLocation,
+    StorePinMap,
+    RepoTags
 }

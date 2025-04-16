@@ -3,9 +3,11 @@ import { ConfigModule as AppConfigModule } from './config/config.module';
 import { CoreModule } from './core/core.module';
 import { envSchema } from './config/env/env.validation'
 import { ConfigModule } from '@nestjs/config';
-import { PlaceModule } from './domain/place/place.module';
-import { DatabaseModule } from './core/database/database.module';
 import { AuthModule } from './domain/auth/auth.module';
+import { GeoapiModule } from './domain/geoapi/geoapi.module';
+import { DeliveryModule } from './domain/delivery/delivery.module';
+import { DatabaseModule } from './core/database/database.module';
+import { StoreModule } from './domain/store/store.module';
 
 @Module({
   imports: [
@@ -15,9 +17,11 @@ import { AuthModule } from './domain/auth/auth.module';
     }),
     AppConfigModule,
     CoreModule,
-    PlaceModule,
     DatabaseModule,
-    AuthModule
+    AuthModule,
+    DeliveryModule,
+    GeoapiModule,
+    StoreModule
   ],
 })
 export class AppModule { }

@@ -1,13 +1,14 @@
-import { PlaceType } from "src/types"
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm"
+import { DeliveryConfiguration } from "src/domain/delivery/entities/delivery-config.entity"
+import { StoreType } from "src/types"
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm"
 
-@Entity('place')
-export class Place {
+@Entity('store')
+export class Store {
 
     @PrimaryGeneratedColumn('uuid')
     storeId: string
 
-    @Column({ unique: true, nullable: false })
+    @Column({ unique: true })
     storeName: string
 
     @Column({ default: true })
@@ -22,7 +23,7 @@ export class Place {
     @Column({ nullable: true })
     longitude: string
 
-    @Column({ nullable: false })
+    @Column()
     address1: string
 
     @Column({ nullable: true })
@@ -31,16 +32,16 @@ export class Place {
     @Column({ nullable: true })
     address3: string
 
-    @Column({ nullable: false })
+    @Column()
     city: string
 
-    @Column({ nullable: false })
+    @Column()
     state: string
 
-    @Column({ nullable: false })
+    @Column()
     country: string
 
-    @Column({ nullable: false })
+    @Column()
     postalCode: string
 
     @Column({ nullable: true })
@@ -49,7 +50,10 @@ export class Place {
     @Column({ nullable: true })
     emailAddress: string
 
-    @Column({ nullable: false, type: 'enum', enum: PlaceType })
-    type: PlaceType
+    @Column({ type: 'enum', enum: StoreType })
+    type: StoreType
+
+    @OneToMany(() => DeliveryConfiguration, (deliveryConfig) => deliveryConfig.storeID)
+    deliveryConfigurations: DeliveryConfiguration[]
 
 }

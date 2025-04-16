@@ -15,7 +15,10 @@ const envSchema = z.object({
 
 type Env = z.infer<typeof envSchema>
 
+const parsedEnv = envSchema.safeParse(process.env)
+
 export {
     Env,
-    envSchema
+    envSchema,
+    parsedEnv
 }
