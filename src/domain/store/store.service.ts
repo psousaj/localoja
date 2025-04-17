@@ -47,6 +47,7 @@ export class StoreService {
     const [data, total] = await this.storeRepository.findAndCount({
       skip: offset,
       take: limit,
+      relations: ['deliveryConfigurations'],
     });
 
     return {
@@ -58,7 +59,13 @@ export class StoreService {
   }
 
   async findOne(storeId: string) {
-    return await this.storeRepository.findOne({ where: { storeId } });
+    const store = await this.storeRepository.findOne({ where: { storeId }, relations: ['deliveryConfigurations'] });
+    return {
+      stores: [store ?? null],
+      total: 1,
+      offset: 0,
+      limit: 1
+    }
   }
 
   async findByUf(uf: string) {

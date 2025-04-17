@@ -1,10 +1,10 @@
 import { StorePinMap } from "src/types";
 import { StoreDto } from "./store.dto";
-import { Expose } from "class-transformer";
+import { Expose, Type } from "class-transformer";
 
-@Expose()
 export class StoreResponseDto {
     @Expose()
+    @Type(() => StoreDto)
     stores: StoreDto[];
     @Expose()
     limit: number;
@@ -16,6 +16,7 @@ export class StoreResponseDto {
 
 export class StoreResponseByCepDto {
     @Expose()
+    @Type(() => StoreDto)
     stores: StoreDto[];
     @Expose()
     pins: StorePinMap[];

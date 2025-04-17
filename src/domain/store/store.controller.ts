@@ -27,25 +27,20 @@ export class StoreController {
   async getAllStores(@Query() pagination: PaginationDto): Promise<StoreResponseDto> {
     const data = await this.storeService.findAll(pagination);
 
-    const storesDto = plainToInstance(StoreDto, data.stores, {
-      excludeExtraneousValues: true,
+    return plainToInstance(StoreResponseDto, data, {
+      excludeExtraneousValues: false,
+      enableCircularCheck: true
     });
-
-    return {
-      ...data,
-      stores: storesDto
-    };
   }
 
   @Get('/:storeId')
   findOne(@Param('storeId', new ParseUUIDPipe()) storeId: string) {
     const data = this.storeService.findOne(storeId);
 
-    const storesDto = plainToInstance(StoreResponseDto, data, {
-      excludeExtraneousValues: false
+    return plainToInstance(StoreResponseDto, data, {
+      excludeExtraneousValues: false,
+      enableCircularCheck: true,
     });
-
-    return { ...data, stores: storesDto }
   }
 
   @Get('/state/:uf')

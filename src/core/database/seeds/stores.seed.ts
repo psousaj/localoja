@@ -215,24 +215,44 @@ const createDefaultDeliveryConfigs = async (
     storeId: string,
     deliveryRepo: Repository<DeliveryConfiguration>
 ): Promise<DeliveryConfiguration[]> => {
-    const existingConfigs = await deliveryRepo.find({ where: { storeID: storeId } });
+    // Busca a entidade Store associada ao storeId
+    const store = await deliveryRepo.manager.getRepository(Store).findOneByOrFail({ storeId });
 
+    // Verifica se já existem configs
+    const existingConfigs = await deliveryRepo.find({
+        where: { storeID: storeId }
+    });
+
+    // Determina quais tipos ainda faltam ser criados
     const missingTypes = [StoreType.LOJA, StoreType.PDV].filter(
         type => !existingConfigs.some(cfg => cfg.deliveryType === type)
     );
 
+    // Se não falta nada, retorna as existentes
     if (missingTypes.length === 0) {
         return existingConfigs;
     }
 
+    // Cria as configs faltantes com todos os campos obrigatórios
     const newConfigs = missingTypes.map(type =>
-        deliveryRepo.create({ storeID: storeId, deliveryType: type })
+        deliveryRepo.create({
+            storeID: storeId,
+            store: store, // vincula entidade store
+            deliveryType: type,
+            shippingTimeInDays: 3,
+            extraDeliveryDays: 0,
+            prazoMotoboy: 2,
+            active: true,
+        })
     );
 
+    // Salva no banco
     const savedConfigs = await deliveryRepo.save(newConfigs);
 
+    // Retorna todas (existentes + novas)
     return [...existingConfigs, ...savedConfigs];
 };
+
 
 export const seedStores = async () => {
     const dataSource = await AppDataSource.initialize()
