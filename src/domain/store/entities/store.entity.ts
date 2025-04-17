@@ -14,8 +14,8 @@ export class Store {
     @Column({ default: true })
     takeOutInStore: boolean
 
-    @Column('int', { nullable: false })
-    shippingTimeInDays: number
+    @Column('int', { nullable: true, default: 1 })
+    shippingTimeInDays: number //Tempo de preparo 
 
     @Column({ nullable: true })
     latitude: string
@@ -50,10 +50,10 @@ export class Store {
     @Column({ nullable: true })
     emailAddress: string
 
-    @Column({ type: 'enum', enum: StoreType })
+    @Column({ type: 'enum', enum: StoreType, default: StoreType.LOJA })
     type: StoreType
 
-    @OneToMany(() => DeliveryConfiguration, (deliveryConfig) => deliveryConfig.storeID)
+    @OneToMany(() => DeliveryConfiguration, (deliveryConfig) => deliveryConfig.store, { nullable: true })
     deliveryConfigurations: DeliveryConfiguration[]
 
 }

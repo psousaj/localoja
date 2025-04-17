@@ -38,6 +38,8 @@ async function bootstrap() {
   // PIPES
   app.useGlobalPipes(new ValidationPipe({
     errorHttpStatusCode: 422,
+    skipMissingProperties: true,
+
   }))
 
   await app.listen(env.get('PORT'), '0.0.0.0');

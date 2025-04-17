@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { DeliveryConfigurationService } from './delivery-config.service';
 import { RepoTags } from 'src/types';
+import { Store } from '../store/entities/store.entity';
 
 @Injectable()
 export class DeliveryService {
@@ -10,16 +11,16 @@ export class DeliveryService {
     private readonly storeConfigService: DeliveryConfigurationService,
   ) { }
 
-  getOrCreateDeliveryConfig(storeID: string) {
-    return this.storeConfigService.getOrCreateStoreConfig(storeID);
+  getOrCreateDeliveryConfig(store: Store) {
+    return this.storeConfigService.getOrCreateStoreConfig(store);
   }
 
-  createDefaultDeliveryConfigs(storeID: string) {
-    return this.storeConfigService.createDefaultConfigs(storeID);
+  createDefaultDeliveryConfigs(store: Store) {
+    return this.storeConfigService.createDefaultConfigs(store);
   }
 
-  getDeliveryConfig(storeID: string) {
-    return this.storeConfigService.getDeliveryConfigs(storeID);
+  getDeliveryConfig(store: Store) {
+    return this.storeConfigService.getDeliveryConfigs(store);
   }
 
   findAll() {

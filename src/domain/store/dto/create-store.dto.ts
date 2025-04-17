@@ -1,5 +1,7 @@
 import { StoreType } from "src/types"
 import { IsBoolean, IsEnum, IsInt, IsOptional, IsString } from "class-validator";
+import { DeliveryConfigurationDto } from "src/domain/delivery/dto/delivery-config.dto";
+import { Expose } from "class-transformer";
 
 export class CreateStoreDto {
 
@@ -14,6 +16,7 @@ export class CreateStoreDto {
     takeOutInStore: boolean
 
     @IsInt()
+    @IsOptional()
     shippingTimeInDays: number
 
     @IsString()
@@ -48,9 +51,11 @@ export class CreateStoreDto {
     postalCode: string
 
     @IsString()
+    @IsOptional()
     telephoneNumber: string
 
     @IsString()
+    @IsOptional()
     emailAddress: string
 
     @IsEnum(() => StoreType)

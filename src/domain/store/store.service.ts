@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { Repository } from 'typeorm';
@@ -21,17 +21,28 @@ export class StoreService {
   }
 
   async create(createStoreDto: CreateStoreDto) {
-    const createdStore = this.storeRepository.create(createStoreDto);
-    await this.storeRepository.save({
-      ...createdStore,
-      deliveryConfigurations: await this.deliveryService.createDefaultDeliveryConfigs(createdStore.storeId)
-    });
+    const existingStore = await this.storeRepository.findOne({ where: { storeName: createStoreDto.storeName } });
 
-    return createdStore;
+    if (existingStore) {
+      throw new UnprocessableEntityException('Store already exists');
+    }
+
+    // Primeiro cria e salva a store para garantir que tenha um storeId
+    const createdStore = this.storeRepository.create(createStoreDto);
+    const savedStore = await this.storeRepository.save(createdStore);
+
+    // Agora cria os deliveryConfigurations com a store já persistida
+    const deliveryConfigurations = await this.deliveryService.createDefaultDeliveryConfigs(savedStore);
+
+    savedStore.deliveryConfigurations = deliveryConfigurations;
+    await this.storeRepository.save(savedStore);
+
+    return savedStore;
+
   }
 
   async findAll(pagination: PaginationDto): Promise<StoreResponseDto> {
-    const { offset = 0, limit = 10 } = pagination;
+    const { offset = 0, limit = 100 } = pagination;
 
     const [data, total] = await this.storeRepository.findAndCount({
       skip: offset,

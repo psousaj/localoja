@@ -1,17 +1,28 @@
 import { StorePinMap } from "src/types";
-import { Store } from "../entities/store.entity";
+import { StoreDto } from "./store.dto";
+import { Expose } from "class-transformer";
 
+@Expose()
 export class StoreResponseDto {
-    stores: Store[];
+    @Expose()
+    stores: StoreDto[];
+    @Expose()
     limit: number;
+    @Expose()
     offset: number;
+    @Expose()
     total: number;
 }
 
 export class StoreResponseByCepDto {
-    stores: Store[];
+    @Expose()
+    stores: StoreDto[];
+    @Expose()
     pins: StorePinMap[];
+    @Expose()
     limit: number;
+    @Expose()
     offset: number;
+    @Expose()
     total: number;
 }

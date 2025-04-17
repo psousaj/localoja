@@ -3,6 +3,9 @@ import { StoreService } from './store.service';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { PaginationDto } from '../dto/pagination.dto';
+import { plainToInstance } from 'class-transformer';
+import { StoreDto } from './dto/store.dto';
+import { StoreResponseDto } from './dto/store-response.dto';
 
 @Controller('stores')
 export class StoreController {
@@ -12,18 +15,37 @@ export class StoreController {
   ) { }
 
   @Post()
-  create(@Body(new ValidationPipe()) createStoreDto: CreateStoreDto) {
-    return this.storeService.create(createStoreDto);
+  async create(@Body(new ValidationPipe()) createStoreDto: CreateStoreDto) {
+    const savedStore = await this.storeService.create(createStoreDto);
+
+    return plainToInstance(StoreDto, savedStore, {
+      excludeExtraneousValues: false
+    });
   }
 
   @Get()
-  async getAllStores(@Query() pagination: PaginationDto) {
-    return this.storeService.findAll(pagination);
+  async getAllStores(@Query() pagination: PaginationDto): Promise<StoreResponseDto> {
+    const data = await this.storeService.findAll(pagination);
+
+    const storesDto = plainToInstance(StoreDto, data.stores, {
+      excludeExtraneousValues: true,
+    });
+
+    return {
+      ...data,
+      stores: storesDto
+    };
   }
 
   @Get('/:storeId')
   findOne(@Param('storeId', new ParseUUIDPipe()) storeId: string) {
-    return this.storeService.findOne(storeId);
+    const data = this.storeService.findOne(storeId);
+
+    const storesDto = plainToInstance(StoreResponseDto, data, {
+      excludeExtraneousValues: false
+    });
+
+    return { ...data, stores: storesDto }
   }
 
   @Get('/state/:uf')
