@@ -24,11 +24,11 @@ class BaseError extends Error {
         // Acesso ao statusCode estático da subclasse com type assertion
         this.statusCode = (this.constructor as BaseErrorConstructor).statusCode
         this.errorCode = errorCode
-        this.zodErrors = zodErrors
-            ? typeof zodErrors === "string"
-                ? zodErrors
-                : formatZodErrors(zodErrors.error)
-            : undefined
+        // this.zodErrors = zodErrors
+        //     ? typeof zodErrors === "string"
+        //         ? zodErrors
+        //         : formatZodErrors(zodErrors.error)
+        //     : undefined
 
         const ipInfo = remoteIp ? ` - IP: ${remoteIp}` : ""
         logger.error(`${errorCode} - ${message}${ipInfo}`)

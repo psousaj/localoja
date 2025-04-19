@@ -8,6 +8,8 @@ import { GeoapiModule } from './domain/geoapi/geoapi.module';
 import { DeliveryModule } from './domain/delivery/delivery.module';
 import { DatabaseModule } from './core/database/database.module';
 import { StoreModule } from './domain/store/store.module';
+import { EnvModule } from './config/env/env.module';
+import { LoggerModule } from './core/logger/logger.module';
 
 @Module({
   imports: [
@@ -21,7 +23,9 @@ import { StoreModule } from './domain/store/store.module';
     AuthModule,
     DeliveryModule,
     GeoapiModule,
-    StoreModule
+    StoreModule,
+    EnvModule,
+    LoggerModule
   ],
 })
 export class AppModule { }
