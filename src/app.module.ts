@@ -10,6 +10,7 @@ import { DatabaseModule } from './core/database/database.module';
 import { StoreModule } from './domain/store/store.module';
 import { EnvModule } from './config/env/env.module';
 import { LoggerModule } from './core/logger/logger.module';
+import { ProductModule } from './domain/product/product.module';
 
 @Module({
   imports: [
@@ -25,7 +26,8 @@ import { LoggerModule } from './core/logger/logger.module';
     GeoapiModule,
     StoreModule,
     EnvModule,
-    LoggerModule
+    LoggerModule,
+    ProductModule
   ],
 })
 export class AppModule { }

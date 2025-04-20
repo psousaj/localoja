@@ -4,10 +4,9 @@ import * as session from 'express-session';
 import { AppModule } from './app.module';
 import { SessionEntity } from './domain/auth/session.entity'
 import { EnvService } from './config/env/env.service'
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { DB_TAG } from './config/const';
 import { bootstrapLogger } from './config/bootstrapLogger';
-import { AppLogger } from './core/logger/app-logger.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -18,13 +17,11 @@ async function bootstrap() {
   const env = app.get(EnvService);
 
   // Logger
-  const appLogger = app.get(AppLogger);
-
-  app.useLogger(appLogger); // Nest built-in logs
+  // const appLogger = app.get(AppLogger);
+  // app.useLogger(appLogger); // Nest built-in logs
 
   // Show startup info
-  bootstrapLogger(appLogger, env.get("NODE_ENV"));
-
+  // bootstrapLogger(appLogger, env.get("NODE_ENV"));
   // Cors
   app.enableCors({
     origin: env.get('CORS_ORIGIN').split(',').map(o => o.trim()),
@@ -49,11 +46,15 @@ async function bootstrap() {
 
   // Validation
   app.useGlobalPipes(new ValidationPipe({
+    transform: true, // Transforma o body em DTO
     errorHttpStatusCode: 422,
-    skipMissingProperties: true,
+    skipMissingProperties: false,
+    whitelist: true,             // Remove props que não estão no DTO
+    forbidNonWhitelisted: true, // Dá erro se mandar prop que não existe
   }));
 
   await app.listen(env.get('PORT'), '0.0.0.0');
+  bootstrapLogger(new Logger(), env.get("NODE_ENV"));
 }
 
 bootstrap();

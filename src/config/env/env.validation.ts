@@ -11,6 +11,8 @@ const envSchema = z.object({
     PORT: z.coerce.number().default(3003),
     HOST: z.string().default('0.0.0.0'),
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+    MELHORENVIO_TOKEN: z.string({ message: "Provides MELHORENVIO_TOKEN env. *hint: check .env file for set" }),
+    MELHORENVIO_URL: z.string({ message: "Provides MELHORENVIO_URL env. *hint: check .env file for set" }),
 })
 
 type Env = z.infer<typeof envSchema>

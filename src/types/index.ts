@@ -109,10 +109,63 @@ enum StoreType {
     LOJA = 'LOJA',
 }
 
+type FreteOption = {
+    id: number;
+    name: string;
+    price: string;
+    custom_price: string;
+    discount: string;
+    currency: string;
+    delivery_time: number;
+    delivery_range: {
+        min: number;
+        max: number;
+    };
+    custom_delivery_time: number;
+    custom_delivery_range: {
+        min: number;
+        max: number;
+    };
+    packages: {
+        price: string;
+        discount: string;
+        format: string;
+        weight: string;
+        insurance_value: string;
+        products: {
+            id: string;
+            quantity: number;
+        }[];
+        dimensions: {
+            height: number;
+            width: number;
+            length: number;
+        };
+    }[];
+    additional_services: {
+        receipt: boolean;
+        own_hand: boolean;
+        collect: boolean;
+    };
+    additional: {
+        unit: {
+            price: number;
+            delivery: number;
+        };
+    };
+    company: {
+        id: number;
+        name: string;
+        picture: string;
+    };
+};
+
+
 enum RepoTags {
     STORE = 'STORE',
     DELIVERY = 'DELIVERY',
     DELIVERY_CONFIG = 'DELIVERY_CONFIG',
+    PRODUCT = 'PRODUCT',
 }
 
 export {
@@ -127,5 +180,6 @@ export {
     StoreType,
     PlaceLocation,
     StorePinMap,
-    RepoTags
+    RepoTags,
+    FreteOption
 }
