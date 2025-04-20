@@ -23,7 +23,7 @@ export class MelhorEnvioService {
         const productData = await this.productService.findOne(productId);
 
         const products = productData.products?.map(p => ({
-            id: p.id,
+            id: p.sku,
             width: p.shippingDetails?.width ?? 15,
             height: p.shippingDetails?.height ?? 10,
             length: p.shippingDetails?.length ?? 20,
