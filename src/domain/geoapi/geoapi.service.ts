@@ -3,6 +3,7 @@ import { GmapsService } from "./gmaps/gmaps.service"
 import { ViaCepService } from "./via-cep/via-cep.service"
 import { MelhorEnvioService } from "./melhorEnvio/melhorEnvio.service"
 import { CreateStoreDto } from "../store/dto/create-store.dto"
+import { Coordinates, RouteDistance } from "src/types"
 
 @Injectable()
 export class GeoApiService {
@@ -12,7 +13,7 @@ export class GeoApiService {
         private readonly melhorEnvio: MelhorEnvioService,
     ) { }
 
-    async getAddressByCep(cep: string) { return this.viaCep.lookup(cep) }
+    async getAddressDetailsByPostalCode(postalCode: string) { return this.viaCep.lookup(postalCode) }
 
     async getCoordinatesByStore(store: CreateStoreDto): Promise<number[]> {
         const { country, address1, city, state, postalCode } = store
@@ -20,7 +21,10 @@ export class GeoApiService {
         return await this.gmaps.getGeoLocationByAddress(fullAddress)
     }
 
-    // async getDistance(origins, destinations) { return this.gmaps.calculateDistance(origins, destinations) }
+    async getDistance(origins: Coordinates, destinations: Coordinates): Promise<RouteDistance> {
+        const result = await this.gmaps.calculateDistance(origins, destinations)
+        return result
+    }
 
     // async getShippingOptions(payload) { return this.melhorEnvio.getFrete(payload) }
 }

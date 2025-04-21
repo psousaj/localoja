@@ -2,7 +2,7 @@ import { BadRequestException, Inject, Injectable, InternalServerErrorException }
 import axios from 'axios';
 import { EnvService } from 'src/config/env/env.service';
 import { CacheService } from 'src/core/cache/cache.service';
-import { GeolocationResponseResult, GeoLocationResponse, PlaceLocation, RouteDistance, RoutesResponse } from 'src/types';
+import { GeoLocationResponse, RouteDistance, RoutesResponse, Coordinates } from 'src/types';
 
 @Injectable()
 export class GmapsService {
@@ -56,7 +56,7 @@ export class GmapsService {
         }
     }
 
-    static async getRoutesToPlace(origin: PlaceLocation, destination: PlaceLocation): Promise<RouteDistance> {
+    async calculateDistance(origin: Coordinates, destination: Coordinates): Promise<RouteDistance> {
         const cacheKey = `routes:${origin.latitude},${origin.longitude}|${destination.latitude},${destination.longitude}`
         const cachedData = this.cache.get<RouteDistance>(cacheKey)
 

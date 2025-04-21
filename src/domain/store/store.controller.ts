@@ -44,8 +44,8 @@ export class StoreController {
   }
 
   @Get('/state/:uf')
-  findByUf(@Query('uf') uf: string) {
-    return this.storeService.findByUf(uf);
+  findByUf(@Param('uf') uf: string, @Query() pagination: PaginationDto) {
+    return this.storeService.findByUf(uf, pagination);
   }
 
   @Patch('/:storeId')

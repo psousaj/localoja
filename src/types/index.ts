@@ -90,12 +90,6 @@ type ViaCepResponse = {
     erro?: string
 }
 
-
-type PlaceLocation = {
-    latitude: number
-    longitude: number
-}
-
 type StorePinMap = {
     position: {
         lat: string,
@@ -160,6 +154,12 @@ type FreteOption = {
     };
 };
 
+type Coordinates = {
+    latitude: number | string;
+    longitude: number | string;
+}
+
+// type 
 
 enum RepoTags {
     STORE = 'STORE',
@@ -178,8 +178,8 @@ export {
     RouteDistance,
     GeolocationResponseResult,
     StoreType,
-    PlaceLocation,
     StorePinMap,
     RepoTags,
-    FreteOption
+    FreteOption,
+    Coordinates
 }

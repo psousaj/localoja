@@ -1,4 +1,4 @@
-import { Inject, Injectable, UnprocessableEntityException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { Repository } from 'typeorm';
@@ -19,15 +19,13 @@ export class StoreService {
     private readonly deliveryService: DeliveryService,
     @Inject()
     private readonly geoapiService: GeoApiService,
-  ) {
-    this.storeRepository = storeRepository;
-  }
+  ) { }
 
   async create(createStoreDto: CreateStoreDto) {
     const existingStore = await this.storeRepository.findOne({ where: { storeName: createStoreDto.storeName } });
 
     if (existingStore) {
-      throw new UnprocessableEntityException('Store already exists');
+      throw new ConflictException('Store already exists');
     }
 
     // Primeiro cria e salva a store para garantir que tenha um storeId
@@ -36,10 +34,10 @@ export class StoreService {
 
     // Agora cria os deliveryConfigurations com a store já persistida
     const deliveryConfigurations = await this.deliveryService.createDefaultDeliveryConfigs(savedStore);
-
-    savedStore.deliveryConfigurations = deliveryConfigurations;
     // Define latitude e longitude
     const [lat, lng] = await this.geoapiService.getCoordinatesByStore(savedStore)
+
+    savedStore.deliveryConfigurations = deliveryConfigurations;
     savedStore.latitude = String(lat);
     savedStore.longitude = String(lng);
 
@@ -76,8 +74,20 @@ export class StoreService {
     }
   }
 
-  async findByUf(uf: string) {
-    return await this.storeRepository.find({ where: { state: uf } });
+  async findByUf(uf: string, pagination: PaginationDto) {
+    const { offset = 0, limit = 100 } = pagination;
+    if (!uf) {
+      throw new BadRequestException('UF is required');
+    }
+    const uF = uf.toUpperCase();
+    const [data, total] = await this.storeRepository.findAndCount({ where: { state: uF, } });
+
+    return {
+      stores: data,
+      total,
+      offset,
+      limit
+    }
   }
 
   async update(storeId: string, updateStoreDto: UpdateStoreDto) {
@@ -88,5 +98,33 @@ export class StoreService {
 
   async remove(storeId: string) {
     await this.storeRepository.delete(storeId)
+  }
+
+  // Cliente informa CEP
+  // ↓
+  // DeliveryService chama geoApiService.getAddressByCep()
+  // ↓
+  // Consulta todas as lojas (StoreService.findAll())
+  // ↓
+  // Para cada loja, geoApiService.getDistance()
+  // ↓
+  // Define tipo da entrega: PDV ou LOJA
+  // ↓
+  // Se PDV: cálculo local
+  // Se LOJA: geoApiService.getShippingOptions()
+  // ↓
+  // Gera a resposta com os prazos e valores
+  // ↓
+  // Opcional: salva em DeliveryCalculation
+  async findFreteOptions(customerPostalCode: string) {
+    const customerAddressDetails = await this.geoapiService.getAddressDetailsByPostalCode(customerPostalCode)
+    const stores = await this.storeRepository.find({ relations: ['deliveryConfigurations'] });
+
+    if (!customerAddressDetails || customerAddressDetails.erro) {
+      throw new UnprocessableEntityException(`Invalid postal code: ${customerPostalCode}${customerAddressDetails?.erro
+          ? ' - ' + customerAddressDetails.erro
+          : ''
+        }`);
+    }
   }
 }

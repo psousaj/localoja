@@ -11,14 +11,14 @@ export class ViaCepService {
         private readonly axios: HttpService,
     ) { }
 
-    async lookup(cep: string): Promise<ViaCepResponse | null> {
-        const cacheKey = `cep:${cep}`
+    async lookup(postalCode: string): Promise<ViaCepResponse | null> {
+        const cacheKey = `cep:${postalCode}`
         const cachedData = this.cache.get<ViaCepResponse>(cacheKey)
 
         if (cachedData) return cachedData
 
         try {
-            const response = await this.axios.axiosRef.get<ViaCepResponse>(`https://viacep.com.br/ws/${cep}/json/`)
+            const response = await this.axios.axiosRef.get<ViaCepResponse>(`https://viacep.com.br/ws/${postalCode}/json/`)
 
             if (response.data.erro) {
                 return null
