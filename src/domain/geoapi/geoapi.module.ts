@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { MelhorEnvioService } from './melhorEnvio/melhorEnvio.service';
-import { GoogleMapsService } from './google-maps/google-maps.service';
 import { ViaCepService } from './via-cep/via-cep.service';
 import { CacheService } from 'src/core/cache/cache.service';
 import { EnvService } from 'src/config/env/env.service';
 import { HttpModule } from '@nestjs/axios';
 import { ProductModule } from '../product/product.module';
 import { ProductService } from '../product/product.service';
+import { GmapsService } from './gmaps/gmaps.service';
+import { GeoApiService } from './geoapi.service';
 
 @Module({
   imports: [
@@ -14,17 +15,16 @@ import { ProductService } from '../product/product.service';
     ProductModule
   ],
   providers: [
-    MelhorEnvioService,
-    GoogleMapsService,
-    ViaCepService,
     CacheService,
     EnvService,
-    ProductService
+    ProductService,
+    GmapsService,
+    ViaCepService,
+    MelhorEnvioService,
+    GeoApiService
   ],
   exports: [
-    MelhorEnvioService,
-    GoogleMapsService,
-    ViaCepService,
+    GeoApiService
   ]
 })
 export class GeoapiModule { }

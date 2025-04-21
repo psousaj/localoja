@@ -11,7 +11,7 @@ export class ViaCepService {
         private readonly axios: HttpService,
     ) { }
 
-    async getPlaceByCep(cep: string): Promise<ViaCepResponse | null> {
+    async lookup(cep: string): Promise<ViaCepResponse | null> {
         const cacheKey = `cep:${cep}`
         const cachedData = this.cache.get<ViaCepResponse>(cacheKey)
 

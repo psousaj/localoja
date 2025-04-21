@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { DeliveryConfigurationService } from './delivery-config.service';
-import { RepoTags } from 'src/types';
 import { Store } from '../store/entities/store.entity';
 
 @Injectable()
@@ -22,6 +21,8 @@ export class DeliveryService {
   getDeliveryConfig(store: Store) {
     return this.storeConfigService.getDeliveryConfigs(store);
   }
+
+  findFreteOptions(store: Store) { }
 
   findAll() {
     return `This action returns all delivery`;

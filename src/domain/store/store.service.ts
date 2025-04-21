@@ -7,6 +7,7 @@ import { DeliveryService } from '../delivery/delivery.service';
 import { PaginationDto } from '../dto/pagination.dto';
 import { StoreResponseDto } from './dto/store-response.dto';
 import { RepoTags } from 'src/types';
+import { GeoApiService } from '../geoapi/geoapi.service';
 
 @Injectable()
 export class StoreService {
@@ -15,7 +16,9 @@ export class StoreService {
     @Inject(RepoTags.STORE)
     private readonly storeRepository: Repository<Store>,
     @Inject()
-    private readonly deliveryService: DeliveryService
+    private readonly deliveryService: DeliveryService,
+    @Inject()
+    private readonly geoapiService: GeoApiService,
   ) {
     this.storeRepository = storeRepository;
   }
@@ -35,6 +38,11 @@ export class StoreService {
     const deliveryConfigurations = await this.deliveryService.createDefaultDeliveryConfigs(savedStore);
 
     savedStore.deliveryConfigurations = deliveryConfigurations;
+    // Define latitude e longitude
+    const [lat, lng] = await this.geoapiService.getCoordinatesByStore(savedStore)
+    savedStore.latitude = String(lat);
+    savedStore.longitude = String(lng);
+
     await this.storeRepository.save(savedStore);
 
     return savedStore;

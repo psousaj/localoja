@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, ValidationPipe, Query, Inject } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, Inject } from '@nestjs/common';
 import { StoreService } from './store.service';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
@@ -15,7 +15,7 @@ export class StoreController {
   ) { }
 
   @Post()
-  async create(@Body(new ValidationPipe()) createStoreDto: CreateStoreDto) {
+  async create(@Body() createStoreDto: CreateStoreDto) {
     const savedStore = await this.storeService.create(createStoreDto);
 
     return plainToInstance(StoreDto, savedStore, {
@@ -34,7 +34,7 @@ export class StoreController {
   }
 
   @Get('/:storeId')
-  findOne(@Param('storeId', new ParseUUIDPipe()) storeId: string) {
+  findOne(@Param('storeId', ParseUUIDPipe) storeId: string) {
     const data = this.storeService.findOne(storeId);
 
     return plainToInstance(StoreResponseDto, data, {
@@ -49,12 +49,12 @@ export class StoreController {
   }
 
   @Patch('/:storeId')
-  update(@Param('storeId', new ParseUUIDPipe(), new ValidationPipe()) storeId: string, @Body() updateStoreDto: UpdateStoreDto) {
+  update(@Param('storeId', ParseUUIDPipe) storeId: string, @Body() updateStoreDto: UpdateStoreDto) {
     return this.storeService.update(storeId, updateStoreDto);
   }
 
   @Delete('/:storeId')
-  remove(@Param('storeId', new ParseUUIDPipe()) storeId: string) {
+  remove(@Param('storeId', ParseUUIDPipe) storeId: string) {
     return this.storeService.remove(storeId);
   }
 }

@@ -5,7 +5,7 @@ import { CacheService } from 'src/core/cache/cache.service';
 import { GeolocationResponseResult, GeoLocationResponse, PlaceLocation, RouteDistance, RoutesResponse } from 'src/types';
 
 @Injectable()
-export class GoogleMapsService {
+export class GmapsService {
     private static cache: CacheService
     private static env: EnvService
 
@@ -16,9 +16,9 @@ export class GoogleMapsService {
         private readonly cache: CacheService,
     ) { }
 
-    async getGeoLocationByAddress(address: string): Promise<GeolocationResponseResult[] | null> {
+    async getGeoLocationByAddress(address: string): Promise<number[]> {
         const cacheKey = `geolocation:${address}`
-        const cachedData = this.cache.get<GeolocationResponseResult[]>(cacheKey)
+        const cachedData = this.cache.get<number[]>(cacheKey)
 
         if (cachedData) return cachedData
 
@@ -37,8 +37,12 @@ export class GoogleMapsService {
                 throw new BadRequestException("No results found")
             }
 
-            this.cache.set(cacheKey, response.data.results, 600)
-            return response.data.results
+            const results = response.data.results
+
+            const coordinates = [results[0].geometry.location.lat, results[0].geometry.location.lng]
+
+            this.cache.set(cacheKey, coordinates, 600)
+            return coordinates
 
         } catch (error: any) {
             if (axios.isAxiosError(error)) {

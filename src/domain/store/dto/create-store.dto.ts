@@ -1,7 +1,7 @@
 import { StoreType } from "src/types"
-import { IsBoolean, IsEnum, IsInt, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsEnum, IsInt, IsOptional, IsString, Matches } from "class-validator";
 import { DeliveryConfigurationDto } from "src/domain/delivery/dto/delivery-config.dto";
-import { Expose } from "class-transformer";
+import { Expose, Transform } from "class-transformer";
 
 export class CreateStoreDto {
 
@@ -48,6 +48,10 @@ export class CreateStoreDto {
     country: string
 
     @IsString()
+    @Transform(({ value }) => value.replace(/\D/g, "")) // remove tudo que não for número
+    @Matches(/^[0-9]{8}$/, {
+        message: "CEP must be in the format 63000000 or 63000-000"
+    })
     postalCode: string
 
     @IsString()

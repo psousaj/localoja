@@ -1,4 +1,4 @@
-import { Expose, Type } from 'class-transformer';
+import { Expose, Transform, Type } from 'class-transformer';
 import { DeliveryConfigurationDto } from 'src/domain/delivery/dto/delivery-config.dto';
 import { StoreType } from 'src/types';
 
@@ -40,6 +40,9 @@ export class StoreDto {
     country: string;
 
     @Expose()
+    @Transform(({ value }) =>
+        value.replace(/^(\d{5})(\d{3})$/, "$1-$2")
+    )
     postalCode: string;
 
     @Expose()

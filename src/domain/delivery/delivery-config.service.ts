@@ -39,6 +39,7 @@ export class DeliveryConfigurationService {
         const newConfigs = missingTypes.map(type => ({
             storeID: store.storeId,
             deliveryType: type,
+            prazoMotoboy: StoreType.LOJA === type ? 2 : 0, // prazo para loja é 2 dias
             store
         }));
 

@@ -1,8 +1,9 @@
 import { Store } from "src/domain/store/entities/store.entity";
 import { StoreType } from "src/types";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
 
 @Entity()
+@Unique(["storeID", "deliveryType"])
 export class DeliveryConfiguration {
     @PrimaryGeneratedColumn("uuid")
     id: string

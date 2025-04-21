@@ -17,7 +17,7 @@ export const databaseProviders = [
                 database: env.get('PGDATABASE'),
                 entities: [path.join(__dirname, '../../domain/**/entities/*.entity{.ts,.js}')],
                 synchronize: currentNodeEnv !== 'production', //disable this on production
-                ssl: true
+                ssl: true,
             })
             return dataSource.initialize()
         },
