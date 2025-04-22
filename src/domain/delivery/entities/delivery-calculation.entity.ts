@@ -1,5 +1,6 @@
-import { StoreType } from "src/types";
+import { ShippingOption, StoreType } from "src/types";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+
 
 @Entity()
 export class DeliveryCalculation {
@@ -10,33 +11,21 @@ export class DeliveryCalculation {
     cep: string;
 
     @Column()
+    storeID: string;
+
+    @Column()
     deliveryType: StoreType;
 
-    @Column({ type: 'double precision' })
-    distanceInKm: number;
-
-    @Column()
-    estimatedTimeInDays: number;
-
-    @Column()
-    price: string;
-
-    @Column()
-    description: string;
+    @Column("jsonb")
+    shippingOptions: ShippingOption[];
 
     @Column({ type: 'timestamp' })
     expiresAt: Date;
 
-    @Column()
-    storeID: string;
-
     constructor(partial?: Partial<DeliveryCalculation>) {
-        if (partial) {
-            Object.assign(this, partial);
-        }
-        // Garante que o expiresAt só será setado se ainda não tiver sido passado
+        if (partial) Object.assign(this, partial);
         if (!this.expiresAt) {
-            this.expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24); // +24h
+            this.expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24); // 24h
         }
     }
 }

@@ -104,36 +104,23 @@ export class StoreService {
     await this.storeRepository.delete(storeId)
   }
 
-  // Cliente informa CEP
-  // ↓
-  // DeliveryService chama geoApiService.getAddressByCep()
-  // ↓
-  // Consulta todas as lojas (StoreService.findAll())
-  // ↓
-  // Para cada loja, geoApiService.getDistance()
-  // ↓
-  // Define tipo da entrega: PDV ou LOJA
-  // ↓
-  // Se PDV: cálculo local
-  // Se LOJA: geoApiService.getShippingOptions()
-  // ↓
-  // Gera a resposta com os prazos e valores
-  // ↓
-  // Opcional: salva em DeliveryCalculation
   async findFreteOptions(
     customerPostalCode: string,
     queryOptions?: PaginationDto & { storeId: string }
   ): Promise<any> {
     const { offset = 0, limit = 100 } = queryOptions || { offset: 0, limit: 100 };
 
+    // 1. Obtem endereço do cliente a partir do CEP
     const customerAddressDetails = await this.geoapiService.getAddressDetailsByPostalCode(customerPostalCode);
 
+    // 2. Busca lojas com configurações de entrega
     const [stores, total] = await this.storeRepository.findAndCount({
       skip: offset,
       take: limit,
       relations: ['deliveryConfigurations']
     });
 
+    // 3. Calcula distância do cliente para cada loja
     const storesWithDistanceToCustomer: StoreWithDistanceToCustomer[] = await Promise.all(
       stores.map(async (store) => {
         const routeDistance = await this.geoapiService.getRouteDistance(
@@ -151,6 +138,7 @@ export class StoreService {
       })
     );
 
+    // 4. Gera os pins para o mapa
     const mapPins = storesWithDistanceToCustomer.map((store) => ({
       position: {
         lat: Number(store.latitude),
@@ -159,39 +147,13 @@ export class StoreService {
       title: store.storeName
     }));
 
-    // 🧠 Agora calculamos as opções de frete com base em distância e configs
-    const deliveryCalculations = await this.deliveryService.calculateShippingOptions(
+    // 5. Calcula as opções de entrega já formatadas por loja
+    const formattedStores = await this.deliveryService.calculateShippingOptions(
       storesWithDistanceToCustomer,
       customerPostalCode
     );
 
-    // 🎯 Formata os dados no formato de resposta desejado
-    const formattedStores = deliveryCalculations.map((calc) => {
-      const store = stores.find((s) => s.storeId === calc.storeID);
-      if (!store) return null;
-
-      const isPDV = calc.deliveryType === 'PDV';
-
-      const value = isPDV
-        ? [
-          {
-            prazo: `${calc.estimatedTimeInDays} dias úteis`,
-            price: calc.price,
-            description: calc.description
-          }
-        ]
-        : this.deliveryService.formatCorreiosOptions(calc.description); // Supondo que `description` seja um JSON string vindo dos Correios
-
-      return {
-        name: store.storeName,
-        city: store.city,
-        postalCode: store.postalCode,
-        type: calc.deliveryType,
-        distance: `${calc.distanceInKm.toFixed(1)} km`,
-        value
-      };
-    }).filter(Boolean); // remove nulls se alguma loja não for encontrada
-
+    // 6. Retorna resultado no formato esperado pelo frontend
     return {
       stores: formattedStores,
       pins: mapPins,
@@ -200,6 +162,7 @@ export class StoreService {
       total
     };
   }
+
 
 
 }

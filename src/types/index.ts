@@ -164,6 +164,21 @@ type StoreWithDistanceToCustomer = Store & {
     distance: RouteDistance
 };
 
+type StoreWithFreteOptions = {
+    name: string;
+    city: string;
+    postalCode: string;
+    type: StoreType;
+    distance: string;
+    value: ShippingOption[];
+}
+
+type ShippingOption = {
+    prazo: string;
+    price: string;
+    description: string;
+};
+
 enum RepoTags {
     STORE = 'STORE',
     DELIVERY = 'DELIVERY',
@@ -186,5 +201,7 @@ export {
     RepoTags,
     FreteOption,
     Coordinates,
-    StoreWithDistanceToCustomer
+    StoreWithDistanceToCustomer,
+    ShippingOption,
+    StoreWithFreteOptions
 }

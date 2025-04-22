@@ -4,8 +4,9 @@ import { Store } from '../store/entities/store.entity';
 import { Repository } from 'typeorm';
 import { Delivery } from './entities/delivery.entity';
 import { DeliveryCalculation } from './entities/delivery-calculation.entity';
-import { RepoTags, StoreType, StoreWithDistanceToCustomer } from 'src/types';
+import { RepoTags, ShippingOption, StoreType, StoreWithDistanceToCustomer, StoreWithFreteOptions } from 'src/types';
 import { GeoApiService } from '../geoapi/geoapi.service';
+import { string } from 'zod';
 
 @Injectable()
 export class DeliveryService {
@@ -37,7 +38,7 @@ export class DeliveryService {
     storesWithDistance: StoreWithDistanceToCustomer[],
     customerPostalCode: string,
     productId?: number
-  ): Promise<DeliveryCalculation[]> {
+  ): Promise<StoreWithFreteOptions[]> {
     const [PDVDeliveries, outOfRangeStores] = storesWithDistance.reduce(
       ([inRange, outRange], store) => {
         if (store.distance.distanceMeters <= 50000) {
@@ -50,13 +51,29 @@ export class DeliveryService {
       [[], []] as [StoreWithDistanceToCustomer[], StoreWithDistanceToCustomer[]]
     );
 
+    const stringifyDistance = (distance) => { return `${(distance.distanceMeters / 1000).toFixed(2)} km` }
+
+    const getStoreWithFreteOptions = (
+      store: StoreWithDistanceToCustomer,
+      deliveryType: StoreType,
+      shippingOptions: ShippingOption[]
+    ): StoreWithFreteOptions => {
+      return {
+        name: store.storeName,
+        city: store.city,
+        postalCode: store.postalCode,
+        type: deliveryType,
+        distance: stringifyDistance(store.distance),
+        value: shippingOptions
+      };
+    };
+
     const processStore = async (
       store: StoreWithDistanceToCustomer,
       deliveryType: StoreType
-    ): Promise<DeliveryCalculation[]> => {
+    ): Promise<StoreWithFreteOptions> => {
       const now = new Date();
 
-      // Verifica se já existe cálculo válido
       const existingCalculation = await this.deliveryCalculationRepository.findOne({
         where: {
           storeID: store.storeId,
@@ -66,85 +83,81 @@ export class DeliveryService {
       });
 
       if (existingCalculation && existingCalculation.expiresAt > now) {
-        return [existingCalculation]; // Retorna o cálculo existente
+        return getStoreWithFreteOptions(store, deliveryType, existingCalculation.shippingOptions);
       }
 
-      let shippingOptions: any[] = [];
-      let deliveryCalculations: DeliveryCalculation[] = [];
+      const deliveryConfig = store.deliveryConfigurations.find((dc) => dc.deliveryType === deliveryType);
+      if (!deliveryConfig) throw new Error(`Delivery config missing for store ${store.storeId} and type ${deliveryType}`);
+
+      let shippingOptions: ShippingOption[] = [];
 
       if (deliveryType === StoreType.PDV) {
-        // Lógica para lojas dentro de 50 km (motoboy da loja)
-        const deliveryConfig = store.deliveryConfigurations.find((dc) => dc.deliveryType === deliveryType)!;
-        const totalDeliveryTime = deliveryConfig.shippingTimeInDays + deliveryConfig.extraDeliveryDays;
+        const totalDeliveryTime = deliveryConfig.extraDeliveryDays + store.shippingTimeInDays;
 
-        // Adiciona o cálculo do motoboy (valor fixo)
-        const motoboyCalculation = this.deliveryCalculationRepository.create({
-          storeID: store.storeId,
-          cep: customerPostalCode,
-          deliveryType,
-          distanceInKm: store.distance.distanceMeters / 1000,
-          estimatedTimeInDays: totalDeliveryTime,
-          price: 'R$ 15,00', // Valor fixo para motoboy
-          description: 'Motoboy da loja',
-        });
-
-        deliveryCalculations.push(await this.deliveryCalculationRepository.save(motoboyCalculation));
+        shippingOptions = [
+          {
+            description: 'Motoboy da loja',
+            price: 'R$ 15,00',
+            prazo: `${totalDeliveryTime} dias úteis`,
+          },
+        ];
 
       } else {
-        // Lógica para lojas fora de 50 km (via Correios)
-        shippingOptions = await this.geoapiService.getShippingOptions(
+        // Correios
+        const correiosOptions = await this.geoapiService.getShippingOptions(
           store.postalCode,
           customerPostalCode,
-          productId ?? 8 // ID do produto padrão
+          productId ?? 8
         );
 
-        // Itera sobre as opções de frete dos Correios
-        const deliveryConfig = store.deliveryConfigurations.find((dc) => dc.deliveryType === deliveryType)!;
+        shippingOptions = correiosOptions.map(option => {
+          const prazoBase = Number(option.prazo ?? option.custom_delivery_time ?? option.delivery_time ?? 0);
+          const totalDeliveryTime = deliveryConfig.extraDeliveryDays + store.shippingTimeInDays + prazoBase;
 
-        for (const shippingOption of shippingOptions) {
-          const totalDeliveryTime = deliveryConfig.shippingTimeInDays + deliveryConfig.extraDeliveryDays + shippingOption.estimatedTimeInDays;
-
-          const newCalculation = this.deliveryCalculationRepository.create({
-            storeID: store.storeId,
-            cep: customerPostalCode,
-            deliveryType,
-            distanceInKm: store.distance.distanceMeters / 1000,
-            estimatedTimeInDays: totalDeliveryTime,
-            price: shippingOption.price,
-            description: shippingOption.description,
-            expiresAt: new Date(now.getTime() + 3600 * 1000 * 24), // Expira em 1 dia
-          });
-
-          deliveryCalculations.push(await this.deliveryCalculationRepository.save(newCalculation));
-        }
+          return {
+            description: option.name,
+            price: option.price,
+            prazo: `${totalDeliveryTime} dias úteis`,
+          };
+        });
       }
 
-      return deliveryCalculations;
+      // Cria e salva no banco
+      const deliveryCalculation = this.deliveryCalculationRepository.create({
+        storeID: store.storeId,
+        cep: customerPostalCode,
+        deliveryType,
+        shippingOptions,
+      });
+
+      await this.deliveryCalculationRepository.save(deliveryCalculation);
+
+      // Retorna estrutura formatada para resposta
+      return getStoreWithFreteOptions(store, deliveryType, shippingOptions);
     };
 
-    // Processa todas as lojas dos dois grupos
+    // Processa todas as lojas
     const deliveries = await Promise.all([
       ...PDVDeliveries.map((store) => processStore(store, StoreType.PDV)),
       ...outOfRangeStores.map((store) => processStore(store, StoreType.LOJA)),
     ]);
 
-    // Achata o array de arrays para retornar um único array de cálculos de entrega
-    return deliveries.flat();
+    return deliveries;
   }
 
-  formatCorreiosOptions(description: string): any[] {
-    try {
-      const parsed = JSON.parse(description);
-      return parsed.map((option: any) => ({
-        prazo: `${option.prazo} dias úteis`,
-        codProdutoAgencia: option.codProdutoAgencia,
-        price: option.price,
-        description: option.description
-      }));
-    } catch {
-      return [];
-    }
-  }
+  // formatCorreiosOptions(description: string): any[] {
+  //   try {
+  //     const parsed = JSON.parse(description);
+  //     return parsed.map((option: any) => ({
+  //       prazo: `${option.prazo} dias úteis`,
+  //       codProdutoAgencia: option.codProdutoAgencia,
+  //       price: option.price,
+  //       description: option.description
+  //     }));
+  //   } catch {
+  //     return [];
+  //   }
+  // }
 
 
   findAll() {
