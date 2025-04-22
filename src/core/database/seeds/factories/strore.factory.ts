@@ -1,6 +1,6 @@
 import { setSeederFactory } from 'typeorm-extension';
-import { Store } from 'src/domain/store/entities/store.entity';
-import { StoreType } from 'src/types';
+import { Store } from '../../../../domain/store/entities/store.entity';
+import { StoreType } from '../../../../types';
 
 export const StoreFactory = setSeederFactory(Store, (faker) => {
     const store = new Store();

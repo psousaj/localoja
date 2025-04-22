@@ -4,9 +4,8 @@ import { Store } from '../store/entities/store.entity';
 import { Repository } from 'typeorm';
 import { Delivery } from './entities/delivery.entity';
 import { DeliveryCalculation } from './entities/delivery-calculation.entity';
-import { RepoTags, ShippingOption, StoreType, StoreWithDistanceToCustomer, StoreWithFreteOptions } from 'src/types';
+import { RepoTags, ShippingOption, StoreType, StoreWithDistanceToCustomer, StoreWithFreteOptions } from '../../types';
 import { GeoApiService } from '../geoapi/geoapi.service';
-import { string } from 'zod';
 
 @Injectable()
 export class DeliveryService {
@@ -86,7 +85,7 @@ export class DeliveryService {
         return getStoreWithFreteOptions(store, deliveryType, existingCalculation.shippingOptions);
       }
 
-      const deliveryConfig = store.deliveryConfigurations.find((dc) => dc.deliveryType === deliveryType);
+      const deliveryConfig = store.deliveryConfigurations!.find((dc) => dc.deliveryType === deliveryType);
       if (!deliveryConfig) throw new Error(`Delivery config missing for store ${store.storeId} and type ${deliveryType}`);
 
       let shippingOptions: ShippingOption[] = [];

@@ -1,7 +1,7 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { CacheService } from 'src/core/cache/cache.service';
-import { ViaCepAddressDetails } from 'src/types';
+import { Injectable } from '@nestjs/common';
+import { CacheService } from '../../../core/cache/cache.service';
+import { ViaCepAddressDetails } from '../../../types';
 
 @Injectable()
 export class ViaCepService {

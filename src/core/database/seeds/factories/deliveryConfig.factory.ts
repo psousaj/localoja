@@ -1,5 +1,5 @@
-import { DeliveryConfiguration } from "src/domain/delivery/entities/delivery-config.entity";
-import { StoreType } from "src/types";
+import { DeliveryConfiguration } from "../../../../domain/delivery/entities/delivery-config.entity";
+import { StoreType } from "../../../../types";
 import { setSeederFactory } from "typeorm-extension";
 
 export const DeliveryConfigurationFactory = setSeederFactory(

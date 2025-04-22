@@ -1,10 +1,10 @@
-import { DB_TAG } from "src/config/const";
-import { DeliveryCalculation } from "src/domain/delivery/entities/delivery-calculation.entity";
-import { DeliveryConfiguration } from "src/domain/delivery/entities/delivery-config.entity";
-import { Delivery } from "src/domain/delivery/entities/delivery.entity";
-import { Product } from "src/domain/product/entities/product.entity";
-import { Store } from "src/domain/store/entities/store.entity";
-import { RepoTags } from "src/types";
+import { DB_TAG } from "../../config/const";
+import { DeliveryCalculation } from "../../domain/delivery/entities/delivery-calculation.entity";
+import { DeliveryConfiguration } from "../../domain/delivery/entities/delivery-config.entity";
+import { Delivery } from "../../domain/delivery/entities/delivery.entity";
+import { Product } from "../../domain/product/entities/product.entity";
+import { Store } from "../../domain/store/entities/store.entity";
+import { RepoTags } from "../../types";
 import { DataSource, EntityTarget, ObjectLiteral } from "typeorm";
 
 export function handleRepositoryProvider(tag: string, entity: EntityTarget<ObjectLiteral>, dbTagToInject: string = DB_TAG) {

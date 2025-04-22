@@ -1,8 +1,8 @@
 import { BadRequestException, Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
 import axios from 'axios';
-import { EnvService } from 'src/config/env/env.service';
-import { CacheService } from 'src/core/cache/cache.service';
-import { GeoLocationResponse, RouteDistance, RoutesResponse, Coordinates } from 'src/types';
+import { EnvService } from '../../../config/env/env.service';
+import { CacheService } from '../../../core/cache/cache.service';
+import { GeoLocationResponse, RouteDistance, RoutesResponse, Coordinates } from '../../../types';
 
 @Injectable()
 export class GmapsService {

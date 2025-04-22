@@ -1,10 +1,10 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { RepoTags } from 'src/types';
+import { RepoTags } from '../../types';
 import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
-import { PaginationDto } from '../dto/pagination.dto';
+import { PaginatedProductResponse } from '../dto/pagination.dto';
 
 @Injectable()
 export class ProductService {
@@ -18,7 +18,7 @@ export class ProductService {
     return this.productRepository.save(createProductDto);
   }
 
-  async findAll(options: PaginationDto & Partial<CreateProductDto>) {
+  async findAll(options: PaginatedProductResponse & Partial<CreateProductDto>): Promise<PaginatedProductResponse> {
     const { limit = 100, offset = 0, ...filters } = options;
 
     const [data, total] = await this.productRepository.findAndCount({
@@ -28,7 +28,7 @@ export class ProductService {
     })
 
     return {
-      products: data,
+      data,
       total,
       offset,
       limit

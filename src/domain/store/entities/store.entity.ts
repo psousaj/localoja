@@ -1,6 +1,6 @@
-import { DeliveryConfiguration } from "src/domain/delivery/entities/delivery-config.entity"
-import { Delivery } from "src/domain/delivery/entities/delivery.entity"
-import { StoreType } from "src/types"
+import { DeliveryConfiguration } from "../../../domain/delivery/entities/delivery-config.entity"
+import { Delivery } from "../../../domain/delivery/entities/delivery.entity"
+import { StoreType } from "../../../types"
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm"
 
 @Entity('store')
@@ -28,10 +28,10 @@ export class Store {
     address1: string
 
     @Column({ nullable: true })
-    address2: string
+    address2?: string
 
     @Column({ nullable: true })
-    address3: string
+    address3?: string
 
     @Column()
     city: string
@@ -46,17 +46,17 @@ export class Store {
     postalCode: string
 
     @Column({ nullable: true })
-    telephoneNumber: string
+    telephoneNumber?: string
 
     @Column({ nullable: true })
-    emailAddress: string
+    emailAddress?: string
 
     @Column({ type: 'enum', enum: StoreType, default: StoreType.LOJA })
     type: StoreType
 
     @OneToMany(() => DeliveryConfiguration, (deliveryConfig) => deliveryConfig.store, { nullable: true })
-    deliveryConfigurations: DeliveryConfiguration[]
+    deliveryConfigurations?: DeliveryConfiguration[]
 
     @OneToMany(() => Delivery, (delivery) => delivery.store, { nullable: true })
-    deliveries: Delivery[]
+    deliveries?: Delivery[]
 }

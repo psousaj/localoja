@@ -1,12 +1,12 @@
-import { BadRequestException, ConflictException, Inject, Injectable, UnprocessableEntityException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable } from '@nestjs/common';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { Repository } from 'typeorm';
 import { Store } from './entities/store.entity';
 import { DeliveryService } from '../delivery/delivery.service';
-import { PaginationDto } from '../dto/pagination.dto';
+import { PaginatedStoreResponse, PaginatedStoreWithFreteResponse } from '../dto/pagination.dto';
 import { StoreResponseDto } from './dto/store-response.dto';
-import { RepoTags, StoreType, StoreWithDistanceToCustomer } from 'src/types';
+import { MapPin, RepoTags, StoreWithDistanceToCustomer } from '../../types';
 import { GeoApiService } from '../geoapi/geoapi.service';
 
 @Injectable()
@@ -47,7 +47,7 @@ export class StoreService {
 
   }
 
-  async findAll(pagination: PaginationDto): Promise<StoreResponseDto> {
+  async findAll(pagination: PaginatedStoreResponse): Promise<PaginatedStoreResponse> {
     const { offset = 0, limit = 100 } = pagination;
 
     const [data, total] = await this.storeRepository.findAndCount({
@@ -74,7 +74,7 @@ export class StoreService {
     }
   }
 
-  async findByUf(uf: string, pagination: PaginationDto) {
+  async findByUf(uf: string, pagination: PaginatedStoreResponse): Promise<PaginatedStoreResponse> {
     const { offset = 0, limit = 100 } = pagination;
     if (!uf) {
       throw new BadRequestException('UF is required');
@@ -106,8 +106,8 @@ export class StoreService {
 
   async findFreteOptions(
     customerPostalCode: string,
-    queryOptions?: PaginationDto & { storeId: string }
-  ): Promise<any> {
+    queryOptions?: PaginatedStoreWithFreteResponse
+  ): Promise<PaginatedStoreWithFreteResponse> {
     const { offset = 0, limit = 100 } = queryOptions || { offset: 0, limit: 100 };
 
     // 1. Obtem endereço do cliente a partir do CEP
@@ -145,7 +145,8 @@ export class StoreService {
         lng: Number(store.longitude)
       },
       title: store.storeName
-    }));
+    } as MapPin
+    ));
 
     // 5. Calcula as opções de entrega já formatadas por loja
     const formattedStores = await this.deliveryService.calculateShippingOptions(

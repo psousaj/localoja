@@ -1,7 +1,7 @@
 import { DataSource } from "typeorm"
-import { EnvService } from "src/config/env/env.service";
+import { EnvService } from "../../config/env/env.service";
 import * as path from 'path';
-import { DB_TAG } from "src/config/const";
+import { DB_TAG } from "../../config/const";
 
 export const databaseProviders = [
     {

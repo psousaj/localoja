@@ -3,7 +3,7 @@ import { GmapsService } from "./gmaps/gmaps.service"
 import { ViaCepService } from "./via-cep/via-cep.service"
 import { MelhorEnvioService } from "./melhorEnvio/melhorEnvio.service"
 import { CreateStoreDto } from "../store/dto/create-store.dto"
-import { Coordinates, RouteDistance, ViaCepAddressDetails } from "src/types"
+import { Coordinates, RouteDistance, ViaCepAddressDetails } from "../../types"
 
 @Injectable()
 export class GeoApiService {

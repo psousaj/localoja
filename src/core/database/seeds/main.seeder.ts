@@ -1,10 +1,10 @@
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
 import { DataSource } from 'typeorm';
-import { Store } from 'src/domain/store/entities/store.entity';
-import { Product } from 'src/domain/product/entities/product.entity';
-import { StoreType } from 'src/types';
+import { Store } from '../../../domain/store/entities/store.entity';
+import { Product } from '../../../domain/product/entities/product.entity';
+import { StoreType } from '../../../types';
 import { faker } from '@faker-js/faker';
-import { DeliveryConfiguration } from 'src/domain/delivery/entities/delivery-config.entity';
+import { DeliveryConfiguration } from '../../../domain/delivery/entities/delivery-config.entity';
 
 export default class MainSeeder implements Seeder {
     public async run(

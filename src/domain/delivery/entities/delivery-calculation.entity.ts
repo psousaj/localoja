@@ -1,4 +1,4 @@
-import { ShippingOption, StoreType } from "src/types";
+import { ShippingOption, StoreType } from "../../../types";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 

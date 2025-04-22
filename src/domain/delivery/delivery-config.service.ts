@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { DB_TAG } from 'src/config/const';
-import { RepoTags, StoreType } from 'src/types';
+import { RepoTags, StoreType } from '../../types';
 import { DeliveryConfiguration } from './entities/delivery-config.entity';
 import { Store } from '../store/entities/store.entity';
 

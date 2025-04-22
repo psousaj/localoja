@@ -7,6 +7,7 @@ import { EnvService } from './config/env/env.service'
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { DB_TAG } from './config/const';
 import { bootstrapLogger } from './config/bootstrapLogger';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -23,6 +24,15 @@ async function bootstrap() {
   // Show startup info
   // bootstrapLogger(appLogger, env.get("NODE_ENV"));
   // Cors
+  const config = new DocumentBuilder()
+    .setTitle('Localoja API')
+    .setDescription('Documentação da API do Localoja')
+    .setVersion('2.0')
+    .setOpenAPIVersion('3.0')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, document);
+
   app.enableCors({
     origin: env.get('CORS_ORIGIN').split(',').map(o => o.trim()),
     credentials: true,

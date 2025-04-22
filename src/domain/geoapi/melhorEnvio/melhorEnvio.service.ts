@@ -1,8 +1,8 @@
 import { HttpService } from '@nestjs/axios';
 import { Inject, Injectable } from '@nestjs/common';
-import { EnvService } from 'src/config/env/env.service';
-import { ProductService } from 'src/domain/product/product.service';
-import { FreteOption } from 'src/types';
+import { EnvService } from '../../../config/env/env.service';
+import { ProductService } from '../../../domain/product/product.service';
+import { FreteOption } from '../../../types';
 
 @Injectable()
 export class MelhorEnvioService {

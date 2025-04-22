@@ -1,4 +1,4 @@
-import { Store } from "src/domain/store/entities/store.entity"
+import { Store } from "../domain/store/entities/store.entity"
 
 type ICacheProps = {
     stdTTL?: number // (default: 0) número em segundos pra cada elemento no cache. 0 = ilimitado
@@ -164,6 +164,14 @@ type StoreWithDistanceToCustomer = Store & {
     distance: RouteDistance
 };
 
+type MapPin = {
+    position: {
+        lat: number;
+        lng: number;
+    };
+    title: string;
+}
+
 type StoreWithFreteOptions = {
     name: string;
     city: string;
@@ -203,5 +211,6 @@ export {
     Coordinates,
     StoreWithDistanceToCustomer,
     ShippingOption,
-    StoreWithFreteOptions
+    StoreWithFreteOptions,
+    MapPin
 }

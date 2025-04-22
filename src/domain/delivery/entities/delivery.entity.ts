@@ -1,5 +1,5 @@
-import { Store } from "src/domain/store/entities/store.entity"
-import { StoreType } from "src/types"
+import { Store } from "../../../domain/store/entities/store.entity"
+import { StoreType } from "../../../types"
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm"
 
 @Entity()
