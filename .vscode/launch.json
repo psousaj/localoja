@@ -4,15 +4,21 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Executar Yarn Dev",
-            "runtimeExecutable": "yarn", // Especifica o Yarn como o executável
+            "name": "Debug Nest Framework",
+            "args": [
+                "${workspaceFolder}/src/main.ts"
+            ],
             "runtimeArgs": [
-                "dev" // Passa o script 'dev' para o Yarn
+                "--nolazy",
+                "-r",
+                "ts-node/register",
+                "-r",
+                "tsconfig-paths/register"
             ],
-            "outFiles": [
-                "${workspaceFolder}/src/**/*.ts"
-            ],
-            "sourceMaps": true
+            "sourceMaps": true,
+            "envFile": "${workspaceFolder}/.env",
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
         }
     ]
 }

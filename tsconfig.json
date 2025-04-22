@@ -1,27 +1,38 @@
 {
   "compilerOptions": {
-    "lib": [
-      "es6",
-      "dom"
-    ],
-    "target": "es2020",
     "module": "commonjs",
-    "moduleResolution": "node",
-    "baseUrl": "./",
-    "paths": {
-      "../*": [
-        "src/*"
-      ]
-    },
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
+    "declaration": true,
+    "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "sourceMap": true
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2023",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "noFallthroughCasesInSwitch": false,
+    "resolveJsonModule": true,
+    "types": [
+      "node",
+      "express",
+      "express-session",
+      "jest"
+    ],
+    "typeRoots": [
+      "node_modules/@types"
+    ],
   },
   "exclude": [
-    "node_modules"
-  ]
+    "node_modules",
+    "test",
+    "dist",
+    "**/*spec.ts",
+    "expressImpl"
+  ],
 }
