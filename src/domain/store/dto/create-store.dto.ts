@@ -16,12 +16,12 @@ export class CreateStoreDto {
     @ApiPropertyOptional({ description: 'Indica se a loja permite retirada local' })
     @IsBoolean()
     @IsOptional()
-    takeOutInStore: boolean;
+    takeOutInStore?: boolean;
 
     @ApiPropertyOptional({ description: 'Tempo de preparo da loja em dias' })
     @IsInt()
     @IsOptional()
-    shippingTimeInDays: number;
+    shippingTimeInDays?: number;
 
     @ApiPropertyOptional({ description: 'Latitude da loja' })
     @IsString()

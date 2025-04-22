@@ -7,10 +7,18 @@ import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { RepoTags } from '../../types';
+import { GeoApiService } from '../geoapi/geoapi.service';
+import { DeliveryService } from '../delivery/delivery.service';
+import { DeliveryModule } from '../delivery/delivery.module';
+import { ProductModule } from '../product/product.module';
+import { ProductService } from '../product/product.service';
+import { Product } from '../product/entities/product.entity';
 
 describe('StoreService', () => {
     let service: StoreService;
+    let prodService: ProductService;
     let repo: Repository<Store>;
+    let prodRepo: Repository<Product>;
 
     const mockStoreRepo = {
         findOneBy: jest.fn(),
@@ -22,17 +30,27 @@ describe('StoreService', () => {
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
+            imports: [DeliveryModule, ProductModule],
             providers: [
                 StoreService,
+                GeoApiService,
+                DeliveryService,
+                ProductService,
                 {
                     provide: RepoTags.STORE,
+                    useValue: mockStoreRepo,
+                },
+                {
+                    provide: RepoTags.PRODUCT,
                     useValue: mockStoreRepo,
                 },
             ],
         }).compile();
 
         service = module.get<StoreService>(StoreService);
+        prodService = module.get<ProductService>(ProductService);
         repo = module.get<Repository<Store>>(RepoTags.STORE);
+        prodRepo = module.get<Repository<Product>>(RepoTags.PRODUCT);
     });
 
     afterEach(() => jest.clearAllMocks());
@@ -84,7 +102,7 @@ describe('StoreService', () => {
         mockStoreRepo.findAndCount.mockResolvedValue([stores, 1]);
 
         const result = await service.findByUf(uf, query);
-        expect(result.stores[0].state).toEqual('SP');
+        expect(result.stores![0].state).toEqual('SP');
     });
 
     it('should update a store', async () => {

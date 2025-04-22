@@ -4,7 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { StorePinMapDto } from './store-pinmap.dto';
 import { CreateProductDto } from '../product/dto/create-product.dto';
 import { StoreResponseDto } from '../store/dto/store-response.dto';
-import { StoreWithFreteOptionsDto } from '../store/dto/store.dto';
+import { StoreDto, StoreWithFreteOptionsDto } from '../store/dto/store.dto';
 import { Store } from '../store/entities/store.entity';
 
 export class PaginatedResponse {
@@ -28,8 +28,8 @@ export class PaginatedResponse {
 }
 
 export class PaginatedStoreResponse extends PaginatedResponse {
-    @ApiProperty({ description: 'Lista de Lojas', type: [StoreResponseDto] })
-    stores?: StoreResponseDto[] | Store[];
+    @ApiProperty({ description: 'Lista de Lojas', type: [StoreDto] })
+    stores?: StoreDto[] | Store[];
 }
 
 export class PaginatedStoreWithFreteResponse extends PaginatedResponse {

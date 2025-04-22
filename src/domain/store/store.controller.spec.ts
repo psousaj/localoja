@@ -6,6 +6,7 @@ import { UpdateStoreDto } from './dto/update-store.dto';
 import { PaginatedStoreWithFreteResponse } from '../dto/pagination.dto';
 import { StoreResponseDto } from './dto/store-response.dto';
 import { ConflictException } from '@nestjs/common';
+import { faker } from '@faker-js/faker';
 
 describe('StoreController', () => {
   let controller: StoreController;
@@ -39,8 +40,15 @@ describe('StoreController', () => {
   afterEach(() => jest.clearAllMocks());
 
   it('should create a store', async () => {
-    const dto: CreateStoreDto = { storeName: 'Nova Loja', state: 'SP' } as any;
-    const saved = { ...dto, storeId: 'uuid-123' };
+    const dto: CreateStoreDto = {
+      storeName: 'Nova Loja',
+      state: 'CE',
+      address1: 'Av. Ailton Gomes, 1660',
+      city: 'Juazeiro do Norte',
+      postalCode: '63031038',
+      country: 'Brasil'
+    };
+    const saved = { ...dto, storeId: faker.string.uuid() };
 
     mockService.create.mockResolvedValue(saved);
 
