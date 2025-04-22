@@ -13,7 +13,7 @@ import {
 import { StoreService } from './store.service';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
-import { PaginatedStoreResponse, PaginatedStoreWithFreteResponse } from '../dto/pagination.dto';
+import { PaginatedResponse, PaginatedStoreResponse, PaginatedStoreWithFreteResponse } from '../dto/pagination.dto';
 import { plainToInstance } from 'class-transformer';
 import { StoreDto } from './dto/store.dto';
 import { StoreResponseDto } from './dto/store-response.dto';
@@ -43,7 +43,7 @@ export class StoreController {
   @ApiResponse({ status: 200, description: 'Lista paginada de lojas', type: PaginatedStoreResponse })
   @ApiQuery({ name: 'offset', required: false, description: 'Deslocamento para paginação' })
   @ApiQuery({ name: 'limit', required: false, description: 'Limite de itens por página' })
-  async getAllStores(@Query() pagination: PaginatedStoreResponse) {
+  async getAllStores(@Query() pagination: PaginatedResponse) {
     const data = await this.storeService.findAll(pagination);
     return plainToInstance(StoreResponseDto, data, {
       excludeExtraneousValues: false,
@@ -69,7 +69,7 @@ export class StoreController {
   @ApiQuery({ name: 'offset', required: false, description: 'Deslocamento para paginação' })
   @ApiQuery({ name: 'limit', required: false, description: 'Limite de itens por página' })
   @ApiResponse({ status: 200, description: 'Lista de lojas por estado', type: PaginatedStoreResponse })
-  findByUf(@Param('uf') uf: string, @Query() pagination: PaginatedStoreResponse) {
+  findByUf(@Param('uf') uf: string, @Query() pagination: PaginatedResponse) {
     return this.storeService.findByUf(uf, pagination);
   }
 
@@ -99,7 +99,7 @@ export class StoreController {
   @ApiResponse({ status: 200, description: 'Opções de frete encontradas', type: PaginatedStoreWithFreteResponse })
   findFreteOptions(
     @Param('postalCode') postalCode: string,
-    @Query() queryOptions: PaginatedStoreWithFreteResponse
+    @Query() queryOptions: PaginatedResponse
   ) {
     return this.storeService.findFreteOptions(postalCode, queryOptions);
   }

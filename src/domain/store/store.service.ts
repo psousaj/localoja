@@ -154,7 +154,6 @@ export class StoreService {
       customerPostalCode
     );
 
-    // 6. Retorna resultado no formato esperado pelo frontend
     return {
       stores: formattedStores,
       pins: mapPins,
