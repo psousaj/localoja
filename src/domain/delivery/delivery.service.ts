@@ -1,28 +1,127 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { DeliveryConfigurationService } from './delivery-config.service';
 import { Store } from '../store/entities/store.entity';
+import { Repository } from 'typeorm';
+import { Delivery } from './entities/delivery.entity';
+import { DeliveryCalculation } from './entities/delivery-calculation.entity';
+import { RepoTags, StoreType, StoreWithDistanceToCustomer } from 'src/types';
+import { GeoApiService } from '../geoapi/geoapi.service';
 
 @Injectable()
 export class DeliveryService {
 
   constructor(
     @Inject()
-    private readonly storeConfigService: DeliveryConfigurationService,
+    private readonly deliveryConfigService: DeliveryConfigurationService,
+    @Inject()
+    private readonly geoapiService: GeoApiService,
+    @Inject(RepoTags.DELIVERY)
+    private readonly deliveryRepository: Repository<Delivery>,
+    @Inject(RepoTags.DELIVERY_CALCULATION)
+    private readonly deliveryCalculationRepository: Repository<DeliveryCalculation>
   ) { }
 
   getOrCreateDeliveryConfig(store: Store) {
-    return this.storeConfigService.getOrCreateStoreConfig(store);
+    return this.deliveryConfigService.getOrCreateStoreConfig(store);
   }
 
   createDefaultDeliveryConfigs(store: Store) {
-    return this.storeConfigService.createDefaultConfigs(store);
+    return this.deliveryConfigService.createDefaultConfigs(store);
   }
 
   getDeliveryConfig(store: Store) {
-    return this.storeConfigService.getDeliveryConfigs(store);
+    return this.deliveryConfigService.getDeliveryConfigs(store);
   }
 
-  findFreteOptions(store: Store) { }
+  async calculateShippingOptions(
+    storesWithDistance: StoreWithDistanceToCustomer[],
+    customerPostalCode: string,
+    productId?: number
+  ): Promise<DeliveryCalculation[]> {
+    const [PDVDeliveries, outOfRangeStores] = storesWithDistance.reduce(
+      ([inRange, outRange], store) => {
+        if (store.distance.distanceMeters <= 50000) {
+          inRange.push(store);
+        } else {
+          outRange.push(store);
+        }
+        return [inRange, outRange];
+      },
+      [[], []] as [StoreWithDistanceToCustomer[], StoreWithDistanceToCustomer[]]
+    );
+
+    const processStore = async (
+      store: StoreWithDistanceToCustomer,
+      deliveryType: StoreType
+    ): Promise<DeliveryCalculation> => {
+      const now = new Date();
+
+      // Verifica se já existe cálculo válido
+      const existingCalculation = await this.deliveryCalculationRepository.findOne({
+        where: {
+          storeID: store.storeId,
+          cep: customerPostalCode,
+          deliveryType,
+        },
+      });
+
+      if (existingCalculation && existingCalculation.expiresAt > now) {
+        return existingCalculation;
+      }
+
+      // Chama a API de frete
+      const shippingOption = await this.geoapiService.getShippingOptions(
+        store.postalCode,
+        customerPostalCode,
+        productId ?? 8, //  ID do produto padrão
+      );
+
+      // Prazo total = preparo + extra + tempo estimado do frete
+      const deliveryConfig = store.deliveryConfigurations.find((dc) => dc.deliveryType === deliveryType)!
+      const totalDeliveryTime =
+        deliveryConfig.shippingTimeInDays +
+        deliveryConfig.extraDeliveryDays +
+        shippingOption.estimatedTimeInDays;
+
+      const newCalculation = this.deliveryCalculationRepository.create({
+        storeID: store.storeId,
+        cep: customerPostalCode,
+        deliveryType,
+        distanceInKm: store.distance.distanceMeters / 1000,
+        estimatedTimeInDays: totalDeliveryTime,
+        price: shippingOption.price,
+        description: shippingOption.description,
+        // expiresAt é atribuído automaticamente no constructor
+      });
+
+      await this.deliveryCalculationRepository.save(newCalculation);
+
+      return newCalculation;
+    };
+
+    // Processa todas as lojas dos dois grupos
+    const deliveries = await Promise.all([
+      ...PDVDeliveries.map((store) => processStore(store, StoreType.PDV)),
+      ...outOfRangeStores.map((store) => processStore(store, StoreType.LOJA)),
+    ]);
+
+    return deliveries;
+  }
+
+  formatCorreiosOptions(description: string): any[] {
+    try {
+      const parsed = JSON.parse(description);
+      return parsed.map((option: any) => ({
+        prazo: `${option.prazo} dias úteis`,
+        codProdutoAgencia: option.codProdutoAgencia,
+        price: option.price,
+        description: option.description
+      }));
+    } catch {
+      return [];
+    }
+  }
+
 
   findAll() {
     return `This action returns all delivery`;

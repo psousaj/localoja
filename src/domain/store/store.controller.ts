@@ -57,4 +57,9 @@ export class StoreController {
   remove(@Param('storeId', ParseUUIDPipe) storeId: string) {
     return this.storeService.remove(storeId);
   }
+
+  @Get('/cep/:postalCode')
+  findFreteOptions(@Param('postalCode') postalCode: string, @Query() queryOptions: PaginationDto & { storeId: string }) {
+    return this.storeService.findFreteOptions(postalCode, queryOptions);
+  }
 }

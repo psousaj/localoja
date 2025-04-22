@@ -6,7 +6,7 @@ import { Store } from './entities/store.entity';
 import { DeliveryService } from '../delivery/delivery.service';
 import { PaginationDto } from '../dto/pagination.dto';
 import { StoreResponseDto } from './dto/store-response.dto';
-import { RepoTags } from 'src/types';
+import { RepoTags, StoreType, StoreWithDistanceToCustomer } from 'src/types';
 import { GeoApiService } from '../geoapi/geoapi.service';
 
 @Injectable()
@@ -35,11 +35,11 @@ export class StoreService {
     // Agora cria os deliveryConfigurations com a store já persistida
     const deliveryConfigurations = await this.deliveryService.createDefaultDeliveryConfigs(savedStore);
     // Define latitude e longitude
-    const [lat, lng] = await this.geoapiService.getCoordinatesByStore(savedStore)
+    const { latitude, longitude } = await this.geoapiService.getCoordinatesByStore(savedStore)
 
     savedStore.deliveryConfigurations = deliveryConfigurations;
-    savedStore.latitude = String(lat);
-    savedStore.longitude = String(lng);
+    savedStore.latitude = String(latitude);
+    savedStore.longitude = String(longitude);
 
     await this.storeRepository.save(savedStore);
 
@@ -80,7 +80,11 @@ export class StoreService {
       throw new BadRequestException('UF is required');
     }
     const uF = uf.toUpperCase();
-    const [data, total] = await this.storeRepository.findAndCount({ where: { state: uF, } });
+    const [data, total] = await this.storeRepository.findAndCount({
+      where: { state: uF },
+      skip: offset,
+      take: limit,
+    });
 
     return {
       stores: data,
@@ -116,15 +120,86 @@ export class StoreService {
   // Gera a resposta com os prazos e valores
   // ↓
   // Opcional: salva em DeliveryCalculation
-  async findFreteOptions(customerPostalCode: string) {
-    const customerAddressDetails = await this.geoapiService.getAddressDetailsByPostalCode(customerPostalCode)
-    const stores = await this.storeRepository.find({ relations: ['deliveryConfigurations'] });
+  async findFreteOptions(
+    customerPostalCode: string,
+    queryOptions?: PaginationDto & { storeId: string }
+  ): Promise<any> {
+    const { offset = 0, limit = 100 } = queryOptions || { offset: 0, limit: 100 };
 
-    if (!customerAddressDetails || customerAddressDetails.erro) {
-      throw new UnprocessableEntityException(`Invalid postal code: ${customerPostalCode}${customerAddressDetails?.erro
-          ? ' - ' + customerAddressDetails.erro
-          : ''
-        }`);
-    }
+    const customerAddressDetails = await this.geoapiService.getAddressDetailsByPostalCode(customerPostalCode);
+
+    const [stores, total] = await this.storeRepository.findAndCount({
+      skip: offset,
+      take: limit,
+      relations: ['deliveryConfigurations']
+    });
+
+    const storesWithDistanceToCustomer: StoreWithDistanceToCustomer[] = await Promise.all(
+      stores.map(async (store) => {
+        const routeDistance = await this.geoapiService.getRouteDistance(
+          { latitude: Number(store.latitude), longitude: Number(store.longitude) },
+          {
+            latitude: Number(customerAddressDetails.latitude),
+            longitude: Number(customerAddressDetails.longitude)
+          }
+        );
+
+        return {
+          ...store,
+          distance: routeDistance
+        };
+      })
+    );
+
+    const mapPins = storesWithDistanceToCustomer.map((store) => ({
+      position: {
+        lat: Number(store.latitude),
+        lng: Number(store.longitude)
+      },
+      title: store.storeName
+    }));
+
+    // 🧠 Agora calculamos as opções de frete com base em distância e configs
+    const deliveryCalculations = await this.deliveryService.calculateShippingOptions(
+      storesWithDistanceToCustomer,
+      customerPostalCode
+    );
+
+    // 🎯 Formata os dados no formato de resposta desejado
+    const formattedStores = deliveryCalculations.map((calc) => {
+      const store = stores.find((s) => s.storeId === calc.storeID);
+      if (!store) return null;
+
+      const isPDV = calc.deliveryType === 'PDV';
+
+      const value = isPDV
+        ? [
+          {
+            prazo: `${calc.estimatedTimeInDays} dias úteis`,
+            price: calc.price,
+            description: calc.description
+          }
+        ]
+        : this.deliveryService.formatCorreiosOptions(calc.description); // Supondo que `description` seja um JSON string vindo dos Correios
+
+      return {
+        name: store.storeName,
+        city: store.city,
+        postalCode: store.postalCode,
+        type: calc.deliveryType,
+        distance: `${calc.distanceInKm.toFixed(1)} km`,
+        value
+      };
+    }).filter(Boolean); // remove nulls se alguma loja não for encontrada
+
+    return {
+      stores: formattedStores,
+      pins: mapPins,
+      limit,
+      offset,
+      total
+    };
   }
+
+
 }

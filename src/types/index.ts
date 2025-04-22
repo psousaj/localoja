@@ -1,3 +1,4 @@
+import { Store } from "src/domain/store/entities/store.entity"
 
 type ICacheProps = {
     stdTTL?: number // (default: 0) número em segundos pra cada elemento no cache. 0 = ilimitado
@@ -73,7 +74,7 @@ type RoutesResponse = {
     routes: RouteDistance[]
 }
 
-type ViaCepResponse = {
+type ViaCepAddressDetails = {
     cep: string,
     logradouro: string,
     complemento: string,
@@ -159,12 +160,15 @@ type Coordinates = {
     longitude: number | string;
 }
 
-// type 
+type StoreWithDistanceToCustomer = Store & {
+    distance: RouteDistance
+};
 
 enum RepoTags {
     STORE = 'STORE',
     DELIVERY = 'DELIVERY',
     DELIVERY_CONFIG = 'DELIVERY_CONFIG',
+    DELIVERY_CALCULATION = 'DELIVERY_CALCULATION',
     PRODUCT = 'PRODUCT',
 }
 
@@ -174,12 +178,13 @@ export {
     ICacheProps,
     GeoLocationResponse,
     RoutesResponse,
-    ViaCepResponse,
+    ViaCepAddressDetails,
     RouteDistance,
     GeolocationResponseResult,
     StoreType,
     StorePinMap,
     RepoTags,
     FreteOption,
-    Coordinates
+    Coordinates,
+    StoreWithDistanceToCustomer
 }

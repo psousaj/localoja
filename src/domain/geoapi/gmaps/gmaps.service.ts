@@ -6,9 +6,6 @@ import { GeoLocationResponse, RouteDistance, RoutesResponse, Coordinates } from 
 
 @Injectable()
 export class GmapsService {
-    private static cache: CacheService
-    private static env: EnvService
-
     constructor(
         @Inject()
         private readonly env: EnvService,
@@ -16,9 +13,9 @@ export class GmapsService {
         private readonly cache: CacheService,
     ) { }
 
-    async getGeoLocationByAddress(address: string): Promise<number[]> {
+    async getGeoLocationByAddress(address: string): Promise<Coordinates> {
         const cacheKey = `geolocation:${address}`
-        const cachedData = this.cache.get<number[]>(cacheKey)
+        const cachedData = this.cache.get<Coordinates>(cacheKey)
 
         if (cachedData) return cachedData
 
@@ -39,7 +36,10 @@ export class GmapsService {
 
             const results = response.data.results
 
-            const coordinates = [results[0].geometry.location.lat, results[0].geometry.location.lng]
+            const coordinates = {
+                latitude: results[0].geometry.location.lat,
+                longitude: results[0].geometry.location.lng
+            }
 
             this.cache.set(cacheKey, coordinates, 600)
             return coordinates

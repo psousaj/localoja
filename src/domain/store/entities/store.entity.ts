@@ -1,4 +1,5 @@
 import { DeliveryConfiguration } from "src/domain/delivery/entities/delivery-config.entity"
+import { Delivery } from "src/domain/delivery/entities/delivery.entity"
 import { StoreType } from "src/types"
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm"
 
@@ -56,4 +57,6 @@ export class Store {
     @OneToMany(() => DeliveryConfiguration, (deliveryConfig) => deliveryConfig.store, { nullable: true })
     deliveryConfigurations: DeliveryConfiguration[]
 
+    @OneToMany(() => Delivery, (delivery) => delivery.store, { nullable: true })
+    deliveries: Delivery[]
 }
