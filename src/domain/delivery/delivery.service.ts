@@ -53,7 +53,7 @@ export class DeliveryService {
     const processStore = async (
       store: StoreWithDistanceToCustomer,
       deliveryType: StoreType
-    ): Promise<DeliveryCalculation> => {
+    ): Promise<DeliveryCalculation[]> => {
       const now = new Date();
 
       // Verifica se já existe cálculo válido
@@ -66,37 +66,60 @@ export class DeliveryService {
       });
 
       if (existingCalculation && existingCalculation.expiresAt > now) {
-        return existingCalculation;
+        return [existingCalculation]; // Retorna o cálculo existente
       }
 
-      // Chama a API de frete
-      const shippingOption = await this.geoapiService.getShippingOptions(
-        store.postalCode,
-        customerPostalCode,
-        productId ?? 8, //  ID do produto padrão
-      );
+      let shippingOptions: any[] = [];
+      let deliveryCalculations: DeliveryCalculation[] = [];
 
-      // Prazo total = preparo + extra + tempo estimado do frete
-      const deliveryConfig = store.deliveryConfigurations.find((dc) => dc.deliveryType === deliveryType)!
-      const totalDeliveryTime =
-        deliveryConfig.shippingTimeInDays +
-        deliveryConfig.extraDeliveryDays +
-        shippingOption.estimatedTimeInDays;
+      if (deliveryType === StoreType.PDV) {
+        // Lógica para lojas dentro de 50 km (motoboy da loja)
+        const deliveryConfig = store.deliveryConfigurations.find((dc) => dc.deliveryType === deliveryType)!;
+        const totalDeliveryTime = deliveryConfig.shippingTimeInDays + deliveryConfig.extraDeliveryDays;
 
-      const newCalculation = this.deliveryCalculationRepository.create({
-        storeID: store.storeId,
-        cep: customerPostalCode,
-        deliveryType,
-        distanceInKm: store.distance.distanceMeters / 1000,
-        estimatedTimeInDays: totalDeliveryTime,
-        price: shippingOption.price,
-        description: shippingOption.description,
-        // expiresAt é atribuído automaticamente no constructor
-      });
+        // Adiciona o cálculo do motoboy (valor fixo)
+        const motoboyCalculation = this.deliveryCalculationRepository.create({
+          storeID: store.storeId,
+          cep: customerPostalCode,
+          deliveryType,
+          distanceInKm: store.distance.distanceMeters / 1000,
+          estimatedTimeInDays: totalDeliveryTime,
+          price: 'R$ 15,00', // Valor fixo para motoboy
+          description: 'Motoboy da loja',
+        });
 
-      await this.deliveryCalculationRepository.save(newCalculation);
+        deliveryCalculations.push(await this.deliveryCalculationRepository.save(motoboyCalculation));
 
-      return newCalculation;
+      } else {
+        // Lógica para lojas fora de 50 km (via Correios)
+        shippingOptions = await this.geoapiService.getShippingOptions(
+          store.postalCode,
+          customerPostalCode,
+          productId ?? 8 // ID do produto padrão
+        );
+
+        // Itera sobre as opções de frete dos Correios
+        const deliveryConfig = store.deliveryConfigurations.find((dc) => dc.deliveryType === deliveryType)!;
+
+        for (const shippingOption of shippingOptions) {
+          const totalDeliveryTime = deliveryConfig.shippingTimeInDays + deliveryConfig.extraDeliveryDays + shippingOption.estimatedTimeInDays;
+
+          const newCalculation = this.deliveryCalculationRepository.create({
+            storeID: store.storeId,
+            cep: customerPostalCode,
+            deliveryType,
+            distanceInKm: store.distance.distanceMeters / 1000,
+            estimatedTimeInDays: totalDeliveryTime,
+            price: shippingOption.price,
+            description: shippingOption.description,
+            expiresAt: new Date(now.getTime() + 3600 * 1000 * 24), // Expira em 1 dia
+          });
+
+          deliveryCalculations.push(await this.deliveryCalculationRepository.save(newCalculation));
+        }
+      }
+
+      return deliveryCalculations;
     };
 
     // Processa todas as lojas dos dois grupos
@@ -105,7 +128,8 @@ export class DeliveryService {
       ...outOfRangeStores.map((store) => processStore(store, StoreType.LOJA)),
     ]);
 
-    return deliveries;
+    // Achata o array de arrays para retornar um único array de cálculos de entrega
+    return deliveries.flat();
   }
 
   formatCorreiosOptions(description: string): any[] {
