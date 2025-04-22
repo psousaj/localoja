@@ -29,11 +29,15 @@ export class PaginatedResponse {
 
 export class PaginatedStoreResponse extends PaginatedResponse {
     @ApiProperty({ description: 'Lista de Lojas', type: [StoreDto] })
+    @IsOptional()
+    @Type(() => Array<StoreDto>)
     stores?: StoreDto[] | Store[];
 }
 
 export class PaginatedStoreWithFreteResponse extends PaginatedResponse {
     @ApiProperty({ description: 'Lista de Lojas', type: [StoreWithFreteOptionsDto] })
+    @IsOptional()
+    @Type(() => Array<StoreWithFreteOptionsDto>)
     stores?: StoreWithFreteOptionsDto[];
 
     @IsOptional()

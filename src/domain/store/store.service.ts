@@ -48,7 +48,7 @@ export class StoreService {
   }
 
   async findAll(pagination: PaginatedStoreResponse): Promise<PaginatedStoreResponse> {
-    const { offset = 0, limit = 100 } = pagination;
+    const { offset, limit } = pagination || { offset: 0, limit: 100 };
 
     const [data, total] = await this.storeRepository.findAndCount({
       skip: offset,
@@ -75,7 +75,7 @@ export class StoreService {
   }
 
   async findByUf(uf: string, pagination: PaginatedStoreResponse): Promise<PaginatedStoreResponse> {
-    const { offset = 0, limit = 100 } = pagination;
+    const { offset, limit } = pagination || { offset: 0, limit: 100 };
     if (!uf) {
       throw new BadRequestException('UF is required');
     }
