@@ -43,7 +43,7 @@ export class StoreController {
   @ApiResponse({ status: 200, description: 'Lista paginada de lojas', type: PaginatedStoreResponse })
   @ApiQuery({ name: 'offset', required: false, description: 'Deslocamento para paginação' })
   @ApiQuery({ name: 'limit', required: false, description: 'Limite de itens por página' })
-  async getAllStores(@Query() pagination: PaginatedStoreResponse) {
+  async getAllStores(@Query() pagination: PaginatedStoreResponse & Partial<CreateStoreDto>) {
     const data = await this.storeService.findAll(pagination);
     return plainToInstance(StoreResponseDto, data, {
       excludeExtraneousValues: false,

@@ -47,10 +47,11 @@ export class StoreService {
 
   }
 
-  async findAll(pagination: PaginatedStoreResponse): Promise<PaginatedStoreResponse> {
-    const { offset, limit } = pagination || { offset: 0, limit: 100 };
+  async findAll(pagination: PaginatedStoreResponse & Partial<CreateStoreDto>): Promise<PaginatedStoreResponse> {
+    const { offset = 0, limit = 100, ...filters } = pagination
 
     const [data, total] = await this.storeRepository.findAndCount({
+      where: filters,
       skip: offset,
       take: limit,
       relations: ['deliveryConfigurations'],
@@ -75,7 +76,7 @@ export class StoreService {
   }
 
   async findByUf(uf: string, pagination: PaginatedStoreResponse): Promise<PaginatedStoreResponse> {
-    const { offset, limit } = pagination || { offset: 0, limit: 100 };
+    const { offset = 0, limit = 100 } = pagination
     if (!uf) {
       throw new BadRequestException('UF is required');
     }
@@ -106,9 +107,9 @@ export class StoreService {
 
   async findFreteOptions(
     customerPostalCode: string,
-    queryOptions?: PaginatedStoreWithFreteResponse
+    queryOptions: PaginatedStoreWithFreteResponse
   ): Promise<PaginatedStoreWithFreteResponse> {
-    const { offset = 0, limit = 100 } = queryOptions || { offset: 0, limit: 100 };
+    const { offset = 0, limit = 100 } = queryOptions
 
     // 1. Obtem endereço do cliente a partir do CEP
     const customerAddressDetails = await this.geoapiService.getAddressDetailsByPostalCode(customerPostalCode);
